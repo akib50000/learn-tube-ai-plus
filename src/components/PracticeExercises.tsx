@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from '@/hooks/use-toast';
 
-export interface Exercise {
+interface Exercise {
   id: string;
   title: string;
   difficulty: 'Easy' | 'Medium' | 'Hard';
@@ -23,10 +23,10 @@ const PracticeExercises = ({ exercises }: PracticeExercisesProps) => {
 
   const getDifficultyColor = (difficulty: 'Easy' | 'Medium' | 'Hard') => {
     switch(difficulty) {
-      case 'Easy': return 'bg-green-500 hover:bg-green-600';
-      case 'Medium': return 'bg-yellow-500 hover:bg-yellow-600';
-      case 'Hard': return 'bg-red-500 hover:bg-red-600';
-      default: return 'bg-gray-500 hover:bg-gray-600';
+      case 'Easy': return 'bg-green-500';
+      case 'Medium': return 'bg-yellow-500';
+      case 'Hard': return 'bg-red-500';
+      default: return 'bg-gray-500';
     }
   };
   
@@ -55,7 +55,7 @@ const PracticeExercises = ({ exercises }: PracticeExercisesProps) => {
                   <CardTitle className="text-lg">{exercise.title}</CardTitle>
                   <CardDescription>Practice exercise</CardDescription>
                 </div>
-                <Badge className={getDifficultyColor(exercise.difficulty)}>
+                <Badge className={`${getDifficultyColor(exercise.difficulty)} hover:${getDifficultyColor(exercise.difficulty)}`}>
                   {exercise.difficulty}
                 </Badge>
               </div>
