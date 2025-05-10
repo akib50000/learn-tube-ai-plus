@@ -15,7 +15,7 @@ interface PracticeExercisesProps {
 }
 
 const PracticeExercises = ({ exercises }: PracticeExercisesProps) => {
-  const getDifficultyColor = (difficulty: string) => {
+  const getDifficultyColor = (difficulty: 'Easy' | 'Medium' | 'Hard') => {
     switch(difficulty) {
       case 'Easy': return 'bg-green-500';
       case 'Medium': return 'bg-yellow-500';

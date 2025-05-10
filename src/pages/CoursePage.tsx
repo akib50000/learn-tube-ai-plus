@@ -110,9 +110,9 @@ const courseData = {
     { id: 'resource-4', title: 'Course Project Materials', type: 'zip' as const, size: '5.7 MB', url: '#' }
   ],
   practiceExercises: [
-    { id: 'exercise-1', title: 'Implement a Simple Neural Network', difficulty: 'Medium', points: 50 },
-    { id: 'exercise-2', title: 'Data Classification Challenge', difficulty: 'Hard', points: 100 },
-    { id: 'exercise-3', title: 'AI Ethics Case Study', difficulty: 'Easy', points: 25 }
+    { id: 'exercise-1', title: 'Implement a Simple Neural Network', difficulty: 'Medium' as const, points: 50 },
+    { id: 'exercise-2', title: 'Data Classification Challenge', difficulty: 'Hard' as const, points: 100 },
+    { id: 'exercise-3', title: 'AI Ethics Case Study', difficulty: 'Easy' as const, points: 25 }
   ],
   codingChallenges: [
     { 
@@ -161,9 +161,9 @@ const courseData = {
     }
   ],
   aiSuggestions: [
-    { id: 'suggestion-1', title: 'Practice Neural Network Diagrams', type: 'exercise' },
-    { id: 'suggestion-2', title: 'Review Supervised Learning Concepts', type: 'review' },
-    { id: 'suggestion-3', title: 'Try the Decision Tree Challenge', type: 'code' }
+    { id: 'suggestion-1', title: 'Practice Neural Network Diagrams', type: 'exercise' as const },
+    { id: 'suggestion-2', title: 'Review Supervised Learning Concepts', type: 'review' as const },
+    { id: 'suggestion-3', title: 'Try the Decision Tree Challenge', type: 'code' as const }
   ],
   learningPath: [
     { id: 'path-1', title: 'Machine Learning Foundations', completed: false },
