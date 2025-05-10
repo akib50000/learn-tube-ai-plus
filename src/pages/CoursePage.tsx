@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -86,10 +87,10 @@ const courseData = {
     { id: 'note-2', title: 'Neural Network Architecture', content: 'Input layer, hidden layers, and output layer. The more complex the problem, the more hidden layers might be needed.', timestamp: '2 days ago' }
   ],
   resources: [
-    { id: 'resource-1', title: 'AI Fundamentals Slides', type: 'pdf', size: '2.4 MB', url: '#' },
-    { id: 'resource-2', title: 'Machine Learning Algorithms Cheat Sheet', type: 'pdf', size: '1.8 MB', url: '#' },
-    { id: 'resource-3', title: 'Sample ML Code Repository', type: 'link', url: 'https://github.com/example/ai-learning' },
-    { id: 'resource-4', title: 'Course Project Materials', type: 'zip', size: '5.7 MB', url: '#' }
+    { id: 'resource-1', title: 'AI Fundamentals Slides', type: 'pdf' as const, size: '2.4 MB', url: '#' },
+    { id: 'resource-2', title: 'Machine Learning Algorithms Cheat Sheet', type: 'pdf' as const, size: '1.8 MB', url: '#' },
+    { id: 'resource-3', title: 'Sample ML Code Repository', type: 'link' as const, url: 'https://github.com/example/ai-learning' },
+    { id: 'resource-4', title: 'Course Project Materials', type: 'zip' as const, size: '5.7 MB', url: '#' }
   ]
 };
 
@@ -272,3 +273,4 @@ const CoursePage = () => {
 };
 
 export default CoursePage;
+
