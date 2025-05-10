@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import Navbar from '@/components/Navbar';
 import { ThemeProvider } from '@/hooks/use-theme';
@@ -38,6 +39,8 @@ import {
 } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
 import { Badge } from '@/components/ui/badge';
+import { toast } from '@/hooks/use-toast';
+import PracticeExercises from '@/components/PracticeExercises';
 
 // Sample creator courses data
 const creatorCourses = [
@@ -160,19 +163,107 @@ const exerciseTemplates = [
   }
 ];
 
+// Sample practice exercises for Exercise Builder tab
+const practiceExercises = [
+  {
+    id: 'ex-1',
+    title: 'HTML Structure Challenge',
+    difficulty: 'Easy' as const,
+    points: 10
+  },
+  {
+    id: 'ex-2',
+    title: 'CSS Flexbox Layout',
+    difficulty: 'Medium' as const,
+    points: 20
+  },
+  {
+    id: 'ex-3',
+    title: 'JavaScript Promises',
+    difficulty: 'Hard' as const,
+    points: 30
+  },
+  {
+    id: 'ex-4',
+    title: 'React Component Lifecycle',
+    difficulty: 'Medium' as const,
+    points: 25
+  }
+];
+
 const CreatorStudio = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [contentToolsTab, setContentToolsTab] = useState('planner');
   const [isGeneratingOutline, setIsGeneratingOutline] = useState(false);
+  const [isAddingCourse, setIsAddingCourse] = useState(false);
+  const [isUploadingVideo, setIsUploadingVideo] = useState(false);
+  const [isTrainingTutor, setIsTrainingTutor] = useState(false);
   const form = useForm();
   
-  const handleGenerateOutline = () => {
+  const handleGenerateOutline = (data: any) => {
     setIsGeneratingOutline(true);
     
     // Simulate API call
     setTimeout(() => {
       setIsGeneratingOutline(false);
+      toast({
+        title: "Outline Generated",
+        description: `Created an outline for ${data.topic || 'your course'}`,
+      });
     }, 2000);
+  };
+
+  const handleCreateCourse = () => {
+    setIsAddingCourse(true);
+    
+    // Simulate API call
+    setTimeout(() => {
+      setIsAddingCourse(false);
+      toast({
+        title: "Course Created",
+        description: "Your new course has been created successfully",
+      });
+    }, 1500);
+  };
+
+  const handleUploadVideo = () => {
+    setIsUploadingVideo(true);
+    
+    // Simulate file upload
+    setTimeout(() => {
+      setIsUploadingVideo(false);
+      toast({
+        title: "Video Uploaded",
+        description: "Your video has been uploaded and is being processed",
+      });
+    }, 2000);
+  };
+
+  const handleTrainTutor = () => {
+    setIsTrainingTutor(true);
+    
+    // Simulate AI training process
+    setTimeout(() => {
+      setIsTrainingTutor(false);
+      toast({
+        title: "AI Tutor Training Started",
+        description: "Your AI tutor is being trained with the provided materials",
+      });
+    }, 2000);
+  };
+
+  const handleLaunchTool = (toolName: string) => {
+    toast({
+      title: "Tool Launched",
+      description: `${toolName} is now ready to use`,
+    });
+  };
+
+  const handleSelectTemplate = (category: string, template: string) => {
+    toast({
+      title: "Template Selected",
+      description: `Added ${template} template to your exercise`,
+    });
   };
   
   return (
@@ -272,9 +363,19 @@ const CreatorStudio = () => {
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <h1 className="text-2xl font-bold">Creator Dashboard</h1>
-                  <Button className="bg-learntube-red hover:bg-learntube-dark-red">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Create New Course
+                  <Button 
+                    className="bg-learntube-red hover:bg-learntube-dark-red"
+                    onClick={handleCreateCourse}
+                    disabled={isAddingCourse}
+                  >
+                    {isAddingCourse ? (
+                      "Creating..."
+                    ) : (
+                      <>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Create New Course
+                      </>
+                    )}
                   </Button>
                 </div>
                 
@@ -370,6 +471,12 @@ const CreatorStudio = () => {
                                 variant="default" 
                                 size="sm" 
                                 className="text-xs w-full bg-learntube-red hover:bg-learntube-dark-red"
+                                onClick={() => {
+                                  toast({
+                                    title: `Editing ${course.title}`,
+                                    description: "Opening course editor",
+                                  });
+                                }}
                               >
                                 {course.status === 'published' ? 'Edit Course' : 'Continue Editing'}
                               </Button>
@@ -385,8 +492,12 @@ const CreatorStudio = () => {
                         </div>
                         <h3 className="font-medium mb-2">Create New Course</h3>
                         <p className="text-sm text-gray-500 text-center mb-4">Start building your next amazing learning experience</p>
-                        <Button className="bg-learntube-red hover:bg-learntube-dark-red">
-                          Get Started
+                        <Button 
+                          className="bg-learntube-red hover:bg-learntube-dark-red"
+                          onClick={handleCreateCourse}
+                          disabled={isAddingCourse}
+                        >
+                          {isAddingCourse ? "Creating..." : "Get Started"}
                         </Button>
                       </div>
                     </div>
@@ -499,7 +610,13 @@ const CreatorStudio = () => {
                             <h3 className="font-medium">{tool.title}</h3>
                           </div>
                           <p className="text-sm text-gray-500 mb-3">{tool.description}</p>
-                          <Button variant="outline" size="sm">Launch Tool</Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleLaunchTool(tool.title)}
+                          >
+                            Launch Tool
+                          </Button>
                         </div>
                       ))}
                     </div>
@@ -519,8 +636,12 @@ const CreatorStudio = () => {
                         Upload a lecture video and our AI will automatically extract chapters, create a transcript, generate slides, and build a course outline.
                       </p>
                       <div className="flex flex-col gap-2 items-center">
-                        <Button className="bg-learntube-red hover:bg-learntube-dark-red">
-                          Upload Video
+                        <Button 
+                          className="bg-learntube-red hover:bg-learntube-dark-red"
+                          onClick={handleUploadVideo}
+                          disabled={isUploadingVideo}
+                        >
+                          {isUploadingVideo ? "Uploading..." : "Upload Video"}
                         </Button>
                         <span className="text-xs text-gray-500">MP4, MOV or AVI (max. 2GB)</span>
                       </div>
@@ -557,7 +678,15 @@ const CreatorStudio = () => {
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <h1 className="text-2xl font-bold">Interactive Exercise Builder</h1>
-                  <Button className="bg-learntube-red hover:bg-learntube-dark-red">
+                  <Button 
+                    className="bg-learntube-red hover:bg-learntube-dark-red"
+                    onClick={() => {
+                      toast({
+                        title: "New Exercise",
+                        description: "Creating a new blank exercise",
+                      })
+                    }}
+                  >
                     <Plus className="h-4 w-4 mr-2" />
                     Create Exercise
                   </Button>
@@ -580,7 +709,11 @@ const CreatorStudio = () => {
                           </div>
                           <div className="space-y-2">
                             {category.templates.map((template, idx) => (
-                              <div key={idx} className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
+                              <div 
+                                key={idx} 
+                                className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50 cursor-pointer"
+                                onClick={() => handleSelectTemplate(category.category, template)}
+                              >
                                 <Plus className="h-4 w-4 text-gray-400" />
                                 <span className="text-sm">{template}</span>
                               </div>
@@ -598,19 +731,51 @@ const CreatorStudio = () => {
                     </CardHeader>
                     <CardContent>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
-                        <div className="border rounded-lg p-3 cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors">
+                        <div 
+                          className="border rounded-lg p-3 cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors"
+                          onClick={() => {
+                            toast({
+                              title: "Question Type Added",
+                              description: "Multiple Choice question type added to your exercise",
+                            });
+                          }}
+                        >
                           <h3 className="font-medium mb-1">Multiple Choice</h3>
                           <p className="text-xs text-gray-500">Select one or multiple correct answers</p>
                         </div>
-                        <div className="border rounded-lg p-3 cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors">
+                        <div 
+                          className="border rounded-lg p-3 cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors"
+                          onClick={() => {
+                            toast({
+                              title: "Question Type Added",
+                              description: "Code Challenge added to your exercise",
+                            });
+                          }}
+                        >
                           <h3 className="font-medium mb-1">Code Challenge</h3>
                           <p className="text-xs text-gray-500">Write and test code solutions</p>
                         </div>
-                        <div className="border rounded-lg p-3 cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors">
+                        <div 
+                          className="border rounded-lg p-3 cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors"
+                          onClick={() => {
+                            toast({
+                              title: "Question Type Added",
+                              description: "Drag and Drop question added to your exercise",
+                            });
+                          }}
+                        >
                           <h3 className="font-medium mb-1">Drag and Drop</h3>
                           <p className="text-xs text-gray-500">Match or order items visually</p>
                         </div>
-                        <div className="border rounded-lg p-3 cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors">
+                        <div 
+                          className="border rounded-lg p-3 cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors"
+                          onClick={() => {
+                            toast({
+                              title: "Question Type Added",
+                              description: "Fill in the Blanks question added to your exercise",
+                            });
+                          }}
+                        >
                           <h3 className="font-medium mb-1">Fill in the Blanks</h3>
                           <p className="text-xs text-gray-500">Complete text with missing words</p>
                         </div>
@@ -641,10 +806,30 @@ const CreatorStudio = () => {
                         </div>
                       </div>
                       
-                      <Button className="w-full">Preview Exercise</Button>
+                      <Button 
+                        className="w-full"
+                        onClick={() => {
+                          toast({
+                            title: "Exercise Preview",
+                            description: "Opening exercise preview mode",
+                          });
+                        }}
+                      >
+                        Preview Exercise
+                      </Button>
                     </CardContent>
                   </Card>
                 </div>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Your Practice Exercises</CardTitle>
+                    <CardDescription>Interactive exercises for your courses</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <PracticeExercises exercises={practiceExercises} />
+                  </CardContent>
+                </Card>
                 
                 <Card>
                   <CardHeader>
@@ -663,7 +848,18 @@ const CreatorStudio = () => {
                           </div>
                         </div>
                         <div className="flex justify-center">
-                          <Button variant="outline" size="sm">Upload Template</Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => {
+                              toast({
+                                title: "Template Upload",
+                                description: "Please select a certificate template to upload",
+                              });
+                            }}
+                          >
+                            Upload Template
+                          </Button>
                         </div>
                       </div>
                       
@@ -690,7 +886,17 @@ const CreatorStudio = () => {
                           </div>
                         </div>
                         
-                        <Button className="bg-learntube-red hover:bg-learntube-dark-red">Save Certificate Settings</Button>
+                        <Button 
+                          className="bg-learntube-red hover:bg-learntube-dark-red"
+                          onClick={() => {
+                            toast({
+                              title: "Settings Saved",
+                              description: "Certificate settings have been updated",
+                            });
+                          }}
+                        >
+                          Save Certificate Settings
+                        </Button>
                       </div>
                     </div>
                   </CardContent>
@@ -698,12 +904,20 @@ const CreatorStudio = () => {
               </div>
             )}
             
-            {/* AI Tutor Builder - Keep but enhance the existing one */}
+            {/* AI Tutor Builder */}
             {activeTab === 'ai-tutor' && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <h1 className="text-2xl font-bold">AI Tutor Builder</h1>
-                  <Button className="bg-learntube-red hover:bg-learntube-dark-red">
+                  <Button 
+                    className="bg-learntube-red hover:bg-learntube-dark-red"
+                    onClick={() => {
+                      toast({
+                        title: "Create AI Tutor",
+                        description: "Starting new AI tutor creation process",
+                      });
+                    }}
+                  >
                     <Plus className="h-4 w-4 mr-2" />
                     Create New AI Tutor
                   </Button>
@@ -721,29 +935,103 @@ const CreatorStudio = () => {
                           <Upload className="h-8 w-8 mb-3 text-learntube-red" />
                           <h3 className="font-medium mb-1">Upload Knowledge Base</h3>
                           <p className="text-sm text-gray-500 mb-3">Upload materials, notes and resources for your AI tutor</p>
-                          <Button variant="outline" size="sm">Upload Files</Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => {
+                              toast({
+                                title: "Upload Files",
+                                description: "Select knowledge base files to upload",
+                              });
+                            }}
+                          >
+                            Upload Files
+                          </Button>
                         </div>
                         
                         <div className="border p-4 rounded-lg flex flex-col items-center text-center hover:border-primary transition-colors">
                           <Brain className="h-8 w-8 mb-3 text-learntube-red" />
                           <h3 className="font-medium mb-1">Train Your Model</h3>
                           <p className="text-sm text-gray-500 mb-3">Customize your AI's learning style and approach</p>
-                          <Button variant="outline" size="sm">Start Training</Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={handleTrainTutor}
+                            disabled={isTrainingTutor}
+                          >
+                            {isTrainingTutor ? "Training..." : "Start Training"}
+                          </Button>
                         </div>
                       </div>
                       
-                      {/* New Teaching Style Configuration */}
+                      {/* Teaching Style Configuration */}
                       <div className="border-t pt-6 mb-6">
                         <h3 className="font-medium mb-4">Teaching Style Configuration</h3>
                         <div className="space-y-4">
                           <div>
                             <Label>Communication Tone</Label>
                             <div className="grid grid-cols-5 gap-2 mt-2">
-                              <Button variant="outline" size="sm" className="bg-blue-50">Casual</Button>
-                              <Button variant="outline" size="sm">Friendly</Button>
-                              <Button variant="outline" size="sm">Balanced</Button>
-                              <Button variant="outline" size="sm">Professional</Button>
-                              <Button variant="outline" size="sm">Academic</Button>
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="bg-blue-50"
+                                onClick={() => {
+                                  toast({
+                                    title: "Tone Selected",
+                                    description: "Casual tone has been selected",
+                                  });
+                                }}
+                              >
+                                Casual
+                              </Button>
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => {
+                                  toast({
+                                    title: "Tone Selected",
+                                    description: "Friendly tone has been selected",
+                                  });
+                                }}
+                              >
+                                Friendly
+                              </Button>
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => {
+                                  toast({
+                                    title: "Tone Selected",
+                                    description: "Balanced tone has been selected",
+                                  });
+                                }}
+                              >
+                                Balanced
+                              </Button>
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => {
+                                  toast({
+                                    title: "Tone Selected",
+                                    description: "Professional tone has been selected",
+                                  });
+                                }}
+                              >
+                                Professional
+                              </Button>
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => {
+                                  toast({
+                                    title: "Tone Selected",
+                                    description: "Academic tone has been selected",
+                                  });
+                                }}
+                              >
+                                Academic
+                              </Button>
                             </div>
                           </div>
                           
@@ -754,16 +1042,62 @@ const CreatorStudio = () => {
                                 <span>Less Interactive</span>
                                 <span>More Interactive</span>
                               </div>
-                              <Input type="range" min="1" max="5" defaultValue="3" className="w-full" />
+                              <Input 
+                                type="range" 
+                                min="1" 
+                                max="5" 
+                                defaultValue="3" 
+                                className="w-full"
+                                onChange={(e) => {
+                                  toast({
+                                    title: "Interactivity Level",
+                                    description: `Set to level ${e.target.value} out of 5`,
+                                  });
+                                }}
+                              />
                             </div>
                           </div>
                           
                           <div>
                             <Label>Explanation Style</Label>
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-2">
-                              <Button variant="outline" size="sm" className="bg-blue-50">Examples-based</Button>
-                              <Button variant="outline" size="sm">Conceptual</Button>
-                              <Button variant="outline" size="sm">Step-by-step</Button>
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="bg-blue-50"
+                                onClick={() => {
+                                  toast({
+                                    title: "Style Selected",
+                                    description: "Examples-based explanation style selected",
+                                  });
+                                }}
+                              >
+                                Examples-based
+                              </Button>
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => {
+                                  toast({
+                                    title: "Style Selected",
+                                    description: "Conceptual explanation style selected",
+                                  });
+                                }}
+                              >
+                                Conceptual
+                              </Button>
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => {
+                                  toast({
+                                    title: "Style Selected",
+                                    description: "Step-by-step explanation style selected",
+                                  });
+                                }}
+                              >
+                                Step-by-step
+                              </Button>
                             </div>
                           </div>
                         </div>
@@ -778,6 +1112,14 @@ const CreatorStudio = () => {
                             <textarea 
                               className="w-full h-20 p-2 border rounded-md mt-1"
                               defaultValue="I understand this might be confusing. Let me break it down into simpler steps..."
+                              onChange={(e) => {
+                                if (e.target.value.length > 20) {
+                                  toast({
+                                    title: "Pattern Saved",
+                                    description: "Confusion response pattern has been updated",
+                                  });
+                                }
+                              }}
                             ></textarea>
                           </div>
                           
@@ -787,6 +1129,14 @@ const CreatorStudio = () => {
                               <Input 
                                 defaultValue="Great job! You're making excellent progress." 
                                 className="mt-1"
+                                onChange={(e) => {
+                                  if (e.target.value.length > 10) {
+                                    toast({
+                                      title: "Pattern Saved",
+                                      description: "Success response pattern has been updated",
+                                    });
+                                  }
+                                }}
                               />
                             </div>
                             
@@ -795,11 +1145,27 @@ const CreatorStudio = () => {
                               <Input 
                                 defaultValue="Here's a small hint to help you along..." 
                                 className="mt-1"
+                                onChange={(e) => {
+                                  if (e.target.value.length > 10) {
+                                    toast({
+                                      title: "Pattern Saved",
+                                      description: "Hint response pattern has been updated",
+                                    });
+                                  }
+                                }}
                               />
                             </div>
                           </div>
                           
-                          <Button className="bg-learntube-red hover:bg-learntube-dark-red">
+                          <Button 
+                            className="bg-learntube-red hover:bg-learntube-dark-red"
+                            onClick={() => {
+                              toast({
+                                title: "Configuration Saved",
+                                description: "All AI tutor settings have been updated successfully",
+                              });
+                            }}
+                          >
                             Save AI Tutor Configuration
                           </Button>
                         </div>
@@ -831,8 +1197,30 @@ const CreatorStudio = () => {
                           <span>247 students helped</span>
                         </div>
                         <div className="space-x-2">
-                          <Button variant="outline" size="sm">Analytics</Button>
-                          <Button variant="outline" size="sm">Settings</Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => {
+                              toast({
+                                title: "Analytics",
+                                description: "Opening WebDev Helper analytics",
+                              });
+                            }}
+                          >
+                            Analytics
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => {
+                              toast({
+                                title: "Settings",
+                                description: "Opening WebDev Helper settings",
+                              });
+                            }}
+                          >
+                            Settings
+                          </Button>
                         </div>
                       </div>
                       
@@ -854,8 +1242,30 @@ const CreatorStudio = () => {
                           <span>124 students helped</span>
                         </div>
                         <div className="space-x-2">
-                          <Button variant="outline" size="sm">Analytics</Button>
-                          <Button variant="outline" size="sm">Settings</Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => {
+                              toast({
+                                title: "Analytics",
+                                description: "Opening Design Mentor analytics",
+                              });
+                            }}
+                          >
+                            Analytics
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => {
+                              toast({
+                                title: "Settings",
+                                description: "Opening Design Mentor settings",
+                              });
+                            }}
+                          >
+                            Settings
+                          </Button>
                         </div>
                       </div>
                       
@@ -886,7 +1296,16 @@ const CreatorStudio = () => {
                         </div>
                       </div>
                       
-                      <Button className="w-full" variant="outline">
+                      <Button 
+                        className="w-full" 
+                        variant="outline"
+                        onClick={() => {
+                          toast({
+                            title: "Create AI Tutor",
+                            description: "Starting creation of a new AI tutor",
+                          });
+                        }}
+                      >
                         <Plus className="h-4 w-4 mr-2" />
                         Create New AI Tutor
                       </Button>
