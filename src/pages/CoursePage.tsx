@@ -17,6 +17,7 @@ import CodeChallenge from '@/components/CodeChallenge';
 import PracticeExercises from '@/components/PracticeExercises';
 import QuizModule from '@/components/QuizModule';
 import ProgressTracker from '@/components/ProgressTracker';
+import { AiSuggestion, Exercise, VideoChapter, BookmarkedSection, Module, CourseMaterial, CourseResource, CourseNote, LearningPathItem, CodingChallenge, Quiz } from '@/types';
 
 // Sample course data - in a real app this would come from an API
 const courseData = {
@@ -63,18 +64,18 @@ const courseData = {
         { id: 'lesson-3-4', title: 'AI in Entertainment', duration: '10:50', completed: false, locked: true }
       ]
     }
-  ],
+  ] as Module[],
   videoChapters: [
     { id: 'chapter-1', title: 'Introduction', timestamp: 0 },
     { id: 'chapter-2', title: 'Key Concepts', timestamp: 180 },
     { id: 'chapter-3', title: 'Historical Overview', timestamp: 360 },
     { id: 'chapter-4', title: 'Modern Applications', timestamp: 540 },
     { id: 'chapter-5', title: 'Future Directions', timestamp: 720 }
-  ],
+  ] as VideoChapter[],
   bookmarkedSections: [
     { id: 'bookmark-1', title: 'Neural Network Architecture', timestamp: 245, moduleId: 'module-2', lessonId: 'lesson-2-4' },
     { id: 'bookmark-2', title: 'Types of Supervised Learning', timestamp: 120, moduleId: 'module-2', lessonId: 'lesson-2-1' }
-  ],
+  ] as BookmarkedSection[],
   materials: [
     { id: 'material-1', title: 'What is Artificial Intelligence?', 
       content: `Artificial Intelligence (AI) refers to the simulation of human intelligence in machines that are programmed to think and learn like humans. The term may also be applied to any machine that exhibits traits associated with a human mind such as learning and problem-solving.
@@ -98,22 +99,22 @@ const courseData = {
       - 2000s: Big data and improved computing resources
       - 2010s: Deep learning revolution and practical applications` 
     }
-  ],
+  ] as CourseMaterial[],
   notes: [
     { id: 'note-1', title: 'Types of Machine Learning', content: 'Remember the three main types: supervised, unsupervised, and reinforcement learning. Each has specific use cases.', timestamp: '10 mins ago' },
     { id: 'note-2', title: 'Neural Network Architecture', content: 'Input layer, hidden layers, and output layer. The more complex the problem, the more hidden layers might be needed.', timestamp: '2 days ago' }
-  ],
+  ] as CourseNote[],
   resources: [
     { id: 'resource-1', title: 'AI Fundamentals Slides', type: 'pdf' as const, size: '2.4 MB', url: '#' },
     { id: 'resource-2', title: 'Machine Learning Algorithms Cheat Sheet', type: 'pdf' as const, size: '1.8 MB', url: '#' },
     { id: 'resource-3', title: 'Sample ML Code Repository', type: 'link' as const, url: 'https://github.com/example/ai-learning' },
     { id: 'resource-4', title: 'Course Project Materials', type: 'zip' as const, size: '5.7 MB', url: '#' }
-  ],
+  ] as CourseResource[],
   practiceExercises: [
     { id: 'exercise-1', title: 'Implement a Simple Neural Network', difficulty: 'Medium' as const, points: 50 },
     { id: 'exercise-2', title: 'Data Classification Challenge', difficulty: 'Hard' as const, points: 100 },
     { id: 'exercise-3', title: 'AI Ethics Case Study', difficulty: 'Easy' as const, points: 25 }
-  ],
+  ] as Exercise[],
   codingChallenges: [
     { 
       id: 'code-1', 
@@ -129,7 +130,7 @@ const courseData = {
       starterCode: 'class DecisionTree:\n    def __init__(self):\n        # Your code here\n        pass',
       testCases: ['test_case_1']
     }
-  ],
+  ] as CodingChallenge[],
   quizzes: [
     {
       id: 'quiz-1',
@@ -159,17 +160,17 @@ const courseData = {
         }
       ]
     }
-  ],
+  ] as Quiz[],
   aiSuggestions: [
     { id: 'suggestion-1', title: 'Practice Neural Network Diagrams', type: 'exercise' as const },
     { id: 'suggestion-2', title: 'Review Supervised Learning Concepts', type: 'review' as const },
     { id: 'suggestion-3', title: 'Try the Decision Tree Challenge', type: 'code' as const }
-  ],
+  ] as AiSuggestion[],
   learningPath: [
     { id: 'path-1', title: 'Machine Learning Foundations', completed: false },
     { id: 'path-2', title: 'Deep Learning Specialization', completed: false, locked: true },
     { id: 'path-3', title: 'AI Ethics Certification', completed: false, locked: true }
-  ]
+  ] as LearningPathItem[]
 };
 
 const CoursePage = () => {
