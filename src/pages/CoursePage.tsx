@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -123,29 +122,88 @@ const CoursePage = () => {
         
         {/* Mobile Tabs for Responsive Design */}
         <div className="md:hidden border-b">
-          <TabsList className="w-full">
-            <TabsTrigger 
-              value="video" 
-              className="flex-1 data-[state=active]:border-b-2 data-[state=active]:border-learntube-red rounded-none"
-              onClick={() => setMobileTab('video')}
-            >
-              Video
-            </TabsTrigger>
-            <TabsTrigger 
-              value="modules" 
-              className="flex-1 data-[state=active]:border-b-2 data-[state=active]:border-learntube-red rounded-none"
-              onClick={() => setMobileTab('modules')}
-            >
-              Modules
-            </TabsTrigger>
-            <TabsTrigger 
-              value="ai" 
-              className="flex-1 data-[state=active]:border-b-2 data-[state=active]:border-learntube-red rounded-none"
-              onClick={() => setMobileTab('ai')}
-            >
-              AI Tutor
-            </TabsTrigger>
-          </TabsList>
+          <Tabs value={mobileTab} onValueChange={setMobileTab}>
+            <TabsList className="w-full">
+              <TabsTrigger 
+                value="video" 
+                className="flex-1 data-[state=active]:border-b-2 data-[state=active]:border-learntube-red rounded-none"
+              >
+                Video
+              </TabsTrigger>
+              <TabsTrigger 
+                value="modules" 
+                className="flex-1 data-[state=active]:border-b-2 data-[state=active]:border-learntube-red rounded-none"
+              >
+                Modules
+              </TabsTrigger>
+              <TabsTrigger 
+                value="ai" 
+                className="flex-1 data-[state=active]:border-b-2 data-[state=active]:border-learntube-red rounded-none"
+              >
+                AI Tutor
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="video">
+              <div className="p-4">
+                {/* Video Player */}
+                <VideoPlayer 
+                  videoUrl="#" 
+                  title={currentLesson?.title || 'Loading...'} 
+                  thumbnail={courseData.thumbnail}
+                />
+                
+                {/* Title and Actions */}
+                <div className="mt-4">
+                  <h2 className="text-xl font-bold">{currentLesson?.title || 'Loading...'}</h2>
+                  <div className="flex items-center justify-between mt-2">
+                    <div className="text-sm text-gray-600">
+                      Instructor: {courseData.instructor}
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Button variant="ghost" size="sm">
+                        <ThumbsUp className="h-4 w-4 mr-1" />
+                        <span>Like</span>
+                      </Button>
+                      <Button variant="ghost" size="sm">
+                        <Share className="h-4 w-4 mr-1" />
+                        <span>Share</span>
+                      </Button>
+                      <Button variant="ghost" size="sm">
+                        <Bookmark className="h-4 w-4 mr-1" />
+                        <span>Save</span>
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Course Materials and Resources */}
+                <div className="mt-6 h-[300px] md:h-[400px] border rounded-lg overflow-hidden">
+                  <CourseTabs 
+                    materials={courseData.materials}
+                    notes={courseData.notes}
+                    resources={courseData.resources}
+                  />
+                </div>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="modules">
+              <div className="p-4">
+                <CourseModules 
+                  modules={courseData.modules}
+                  onSelectLesson={(moduleId, lessonId) => {
+                    handleSelectLesson(moduleId, lessonId);
+                    setMobileTab('video');
+                  }}
+                />
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="ai">
+              <AiChatInterface />
+            </TabsContent>
+          </Tabs>
         </div>
         
         {/* Course Content - Desktop Layout */}
@@ -159,7 +217,7 @@ const CoursePage = () => {
           </div>
           
           {/* Center Panel - Video and Content */}
-          <div className={`flex-1 ${mobileTab === 'video' ? 'block' : 'hidden md:block'}`}>
+          <div className="flex-1 hidden md:block">
             <div className="p-4">
               {/* Video Player */}
               <VideoPlayer 
@@ -203,19 +261,8 @@ const CoursePage = () => {
             </div>
           </div>
           
-          {/* Mobile: Course Modules Tab */}
-          <div className={`p-4 ${mobileTab === 'modules' ? 'block md:hidden' : 'hidden'}`}>
-            <CourseModules 
-              modules={courseData.modules}
-              onSelectLesson={(moduleId, lessonId) => {
-                handleSelectLesson(moduleId, lessonId);
-                setMobileTab('video');
-              }}
-            />
-          </div>
-          
           {/* Right Panel - AI Chat Interface */}
-          <div className={`w-80 border-l ${mobileTab === 'ai' ? 'block' : 'hidden md:block'}`}>
+          <div className="w-80 border-l hidden md:block">
             <AiChatInterface />
           </div>
         </div>
