@@ -1,5 +1,5 @@
 
-import { Home, Compass, Clock, ThumbsUp, Folder, Bookmark, Graduation, Settings } from 'lucide-react';
+import { Home, Compass, Clock, ThumbsUp, Folder, Bookmark, GraduationCap, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -54,7 +54,7 @@ const Sidebar = () => {
                 <span>My Courses</span>
               </Button>
               <Button variant="ghost" className="sidebar-item w-full justify-start">
-                <Graduation className="h-4 w-4" />
+                <GraduationCap className="h-4 w-4" />
                 <span>Certifications</span>
               </Button>
             </div>
