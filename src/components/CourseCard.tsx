@@ -1,22 +1,31 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Clock, User, Heart, BookOpen } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Clock, User, Heart, BookOpen, Star, Play } from 'lucide-react';
+import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 
 interface CourseCardProps {
   id: string;
   title: string;
   thumbnail: string;
   instructor: string;
+  instructorAvatar?: string;
   duration: string;
   category?: string;
   progress?: number;
   rating?: number;
-  price?: string;
+  reviewCount?: number;
+  price?: string | number;
   isFeatured?: boolean;
+  isNew?: boolean;
+  isPopular?: boolean;
+  isAIGenerated?: boolean;
 }
 
 const CourseCard = ({ 
@@ -24,114 +33,181 @@ const CourseCard = ({
   title, 
   thumbnail, 
   instructor, 
+  instructorAvatar,
   duration, 
   category,
   progress = 0,
   rating,
+  reviewCount,
   price,
-  isFeatured = false
+  isFeatured = false,
+  isNew = false,
+  isPopular = false,
+  isAIGenerated = false
 }: CourseCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
+  const { toast } = useToast();
+  
+  const handleFavoriteToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsFavorite(!isFavorite);
+    
+    toast({
+      title: isFavorite ? "Removed from wishlist" : "Added to wishlist",
+      description: isFavorite 
+        ? "Course removed from your saved courses" 
+        : "Course added to your saved courses",
+      variant: isFavorite ? "default" : "success",
+    });
+  };
+
+  const getBadgeVariant = () => {
+    if (isAIGenerated) return "secondary";
+    if (isNew) return "outline";
+    if (isPopular) return "default";
+    return "outline";
+  };
+  
+  const getBadgeText = () => {
+    if (isAIGenerated) return "AI-Generated";
+    if (isNew) return "New";
+    if (isPopular) return "Popular";
+    return "";
+  };
+  
+  const showBadge = isNew || isPopular || isAIGenerated;
   
   return (
     <Card 
       className={cn(
-        "video-card h-full overflow-hidden border shadow-sm transition-all duration-200 hover:shadow-md", 
-        isHovered ? "transform-gpu scale-[1.02]" : "",
+        "group overflow-hidden border transition-all duration-300 hover:shadow-md", 
+        isHovered ? "ring-1 ring-primary/20" : "",
         isFeatured ? "ring-2 ring-primary ring-offset-2" : ""
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <Link to={`/course/${id}`} className="block">
+      <Link to={`/course/${id}`} className="block focus:outline-none focus:ring-2 focus:ring-primary">
         <div className="relative overflow-hidden aspect-video">
           <img 
             src={thumbnail} 
             alt={title} 
             className={cn(
-              "video-thumbnail object-cover w-full h-full transition-transform duration-300",
+              "object-cover w-full h-full transition-transform duration-700",
               isHovered ? "scale-105" : ""
             )}
           />
           
-          {category && (
-            <Badge className="absolute top-2 left-2 bg-white/90 text-black hover:bg-white/80">
-              {category}
+          {/* Price badge */}
+          {typeof price !== 'undefined' && (
+            <Badge 
+              className="absolute top-3 right-3 bg-background/90 text-foreground shadow-sm"
+            >
+              {price === 0 || price === 'Free' ? 'Free' : `$${price}`}
             </Badge>
           )}
           
-          {price && (
-            <Badge className="absolute top-2 right-2 bg-black/80 text-white">
-              {price === 'Free' ? 'Free' : `$${price}`}
+          {/* Feature badge */}
+          {showBadge && (
+            <Badge 
+              variant={getBadgeVariant()} 
+              className="absolute top-3 left-3"
+            >
+              {getBadgeText()}
             </Badge>
           )}
           
+          {/* Progress bar for enrolled courses */}
           {progress > 0 && (
-            <div className="absolute bottom-0 left-0 w-full h-1 bg-gray-200 dark:bg-gray-700">
-              <div 
-                className="progress-bar" 
-                style={{ width: `${progress}%` }} 
-              />
-              <span className="absolute right-1 bottom-1 text-[10px] font-medium text-white bg-black/50 px-1 rounded">
-                {progress}%
-              </span>
+            <div className="absolute bottom-0 left-0 w-full px-3 pb-3 pt-8 bg-gradient-to-t from-black/80 to-transparent">
+              <div className="flex items-center justify-between text-white text-xs mb-1.5">
+                <span>Continue learning</span>
+                <span>{progress}% complete</span>
+              </div>
+              <Progress value={progress} className="h-1.5" />
             </div>
           )}
+          
+          {/* Hover overlay */}
+          <div className={cn(
+            "absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 transition-opacity",
+            isHovered ? "opacity-100" : ""
+          )}>
+            <Button size="sm" className="bg-white text-black hover:bg-white/90">
+              <Play className="h-3 w-3 mr-1 fill-current" /> Preview
+            </Button>
+          </div>
         </div>
       </Link>
       
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between">
-          <Link to={`/course/${id}`} className="block flex-1">
-            <h3 className="font-medium text-base line-clamp-2 mb-2 hover:text-primary transition-colors">
+      <div className="p-4">
+        <div className="flex items-start justify-between gap-2">
+          <Link to={`/course/${id}`} className="block group-hover:text-primary transition-colors">
+            <h3 className="font-medium text-lg line-clamp-2 mb-1">
               {title}
             </h3>
           </Link>
+          
           <button 
-            className="flex-shrink-0 ml-2 p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-            onClick={() => setIsFavorite(!isFavorite)}
-            aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+            className="flex-shrink-0 p-2 rounded-full hover:bg-muted transition-colors"
+            onClick={handleFavoriteToggle}
+            aria-label={isFavorite ? "Remove from wishlist" : "Add to wishlist"}
           >
-            <Heart className={cn("h-4 w-4", isFavorite ? "fill-red-500 text-red-500" : "text-gray-400")} />
+            <Heart 
+              className={cn(
+                "h-5 w-5 transition-all", 
+                isFavorite 
+                  ? "fill-red-500 text-red-500 scale-110" 
+                  : "text-muted-foreground"
+              )} 
+            />
           </button>
         </div>
         
-        <div className="flex flex-wrap gap-y-1 text-sm text-gray-600 dark:text-gray-400">
-          <div className="flex items-center gap-1 mr-3">
-            <User className="h-3 w-3" />
-            <Link to={`/profile/${instructor}/creator`} className="hover:text-primary transition-colors">
-              {instructor}
-            </Link>
-          </div>
-          <div className="flex items-center gap-1 mr-3">
-            <Clock className="h-3 w-3" />
+        <div className="flex items-center mt-2">
+          <Link 
+            to={`/profile/${instructor}/creator`} 
+            className="flex items-center hover:text-primary transition-colors"
+          >
+            <Avatar className="h-5 w-5 mr-1.5">
+              <AvatarImage src={instructorAvatar} />
+              <AvatarFallback>{instructor[0]}</AvatarFallback>
+            </Avatar>
+            <span className="text-sm font-medium">{instructor}</span>
+          </Link>
+        </div>
+        
+        <div className="flex flex-wrap items-center mt-2 text-sm text-muted-foreground">
+          <div className="flex items-center mr-4">
+            <Clock className="h-3.5 w-3.5 mr-1" />
             <span>{duration}</span>
           </div>
+          
           {rating && (
-            <div className="flex items-center gap-1">
-              <div className="flex">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <svg 
-                    key={star}
+            <div className="flex items-center">
+              <div className="flex items-center">
+                {Array(5).fill(0).map((_, i) => (
+                  <Star 
+                    key={i} 
                     className={cn(
-                      "h-3 w-3", 
-                      star <= Math.round(rating) 
-                        ? "text-yellow-400 fill-yellow-400" 
-                        : "text-gray-300 fill-gray-300"
+                      "h-3.5 w-3.5", 
+                      i < Math.floor(rating) 
+                        ? "fill-yellow-400 text-yellow-400" 
+                        : "text-muted stroke-muted-foreground/40"
                     )}
-                    xmlns="http://www.w3.org/2000/svg" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-                  </svg>
+                  />
                 ))}
               </div>
               <span className="ml-1">{rating.toFixed(1)}</span>
+              {reviewCount && (
+                <span className="ml-1 text-xs">({reviewCount})</span>
+              )}
             </div>
           )}
         </div>
-      </CardContent>
+      </div>
     </Card>
   );
 };

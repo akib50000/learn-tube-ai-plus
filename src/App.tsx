@@ -11,6 +11,8 @@ import CreatorStudio from "./pages/CreatorStudio";
 import NotFound from "./pages/NotFound";
 import ProfilePage from "./pages/ProfilePage";
 import SettingsPage from "./pages/SettingsPage";
+import Explore from "./pages/Explore";
+import AITutorBuilder from "./pages/AITutorBuilder";
 import { ThemeProvider } from "./hooks/use-theme";
 
 const queryClient = new QueryClient({
@@ -31,11 +33,13 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/explore" element={<Explore />} />
             <Route path="/course/:courseId" element={<CoursePage />} />
             <Route path="/course-not-found/:courseId" element={<CourseNotFound />} />
             <Route path="/creator-studio" element={<CreatorStudio />} />
             <Route path="/profile/:userId/:role" element={<ProfilePage />} />
             <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/ai-tutor-builder" element={<AITutorBuilder />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
