@@ -8,6 +8,8 @@ import Index from "./pages/Index";
 import CoursePage from "./pages/CoursePage";
 import CreatorStudio from "./pages/CreatorStudio";
 import NotFound from "./pages/NotFound";
+import ProfilePage from "./pages/ProfilePage";
+import SettingsPage from "./pages/SettingsPage";
 import { ThemeProvider } from "./hooks/use-theme";
 
 const queryClient = new QueryClient();
@@ -23,6 +25,8 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/course/:courseId" element={<CoursePage />} />
             <Route path="/creator-studio" element={<CreatorStudio />} />
+            <Route path="/profile/:userId/:role" element={<ProfilePage />} />
+            <Route path="/settings" element={<SettingsPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
