@@ -1,10 +1,11 @@
 
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Play, Clock, User, ThumbsUp, BookOpen, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
-import { useState } from 'react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { toast } from '@/hooks/use-toast';
 
 interface FeaturedCourseProps {
@@ -14,6 +15,7 @@ interface FeaturedCourseProps {
   thumbnail: string;
   instructor: string;
   instructorId?: string;
+  instructorAvatar?: string;
   duration: string;
   likes: number;
   tags: string[];
@@ -29,6 +31,7 @@ const FeaturedCourse = ({
   thumbnail,
   instructor,
   instructorId = '1',
+  instructorAvatar,
   duration,
   likes,
   tags,
@@ -49,7 +52,7 @@ const FeaturedCourse = ({
   };
 
   return (
-    <Card className="overflow-hidden border-none shadow-lg bg-transparent">
+    <Card className="overflow-hidden border-none shadow-xl bg-transparent h-full rounded-xl hover-lift">
       <div className="relative aspect-video sm:aspect-[21/9] overflow-hidden rounded-xl">
         <img 
           src={thumbnail} 
@@ -57,45 +60,62 @@ const FeaturedCourse = ({
           className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 hover:scale-105" 
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent" />
+        
         <div className="absolute top-4 right-4 flex gap-2">
           {price === 'Free' ? (
-            <Badge variant="success" className="text-white">Free</Badge>
+            <Badge variant="success" className="text-white font-medium px-3 py-1">Free</Badge>
           ) : (
-            <Badge variant="secondary" className="bg-white text-black">${price}</Badge>
+            <Badge variant="secondary" className="bg-white text-black font-medium px-3 py-1">${price}</Badge>
           )}
           {students > 1000 && (
-            <Badge variant="secondary" className="bg-black/40 text-white">Bestseller</Badge>
+            <Badge variant="secondary" className="bg-black/40 text-white font-medium px-3 py-1">Bestseller</Badge>
           )}
         </div>
+        
         <div className="absolute bottom-0 left-0 w-full p-5 sm:p-6">
           <div className="flex flex-wrap gap-2 mb-3">
             {tags.map((tag) => (
-              <Badge key={tag} variant="secondary" className="bg-black/30 hover:bg-black/40 text-white">
+              <Badge key={tag} variant="secondary" 
+                className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-white/20">
                 {tag}
               </Badge>
             ))}
           </div>
           
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2">{title}</h1>
+          <Link to={`/course/${id}`} className="block">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2 group-hover:text-primary transition-colors">
+              {title}
+            </h1>
+          </Link>
           <p className="text-white/80 mb-4 line-clamp-2 md:line-clamp-3">{description}</p>
           
-          <div className="flex flex-wrap items-center gap-4 text-white/90 mb-4">
-            <Link to={`/profile/${instructorId}/creator`} className="flex items-center gap-1 hover:text-primary transition-colors">
-              <User className="h-4 w-4" />
-              <span>{instructor}</span>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-white/90 mb-4">
+            <Link to={`/profile/${instructorId}/creator`} 
+              className="flex items-center gap-2 hover:text-primary transition-colors">
+              <Avatar className="h-6 w-6 border border-white/30">
+                {instructorAvatar ? (
+                  <AvatarImage src={instructorAvatar} alt={instructor} />
+                ) : null}
+                <AvatarFallback>{instructor[0]}</AvatarFallback>
+              </Avatar>
+              <span className="text-sm font-medium">{instructor}</span>
             </Link>
-            <div className="flex items-center gap-1">
+            
+            <div className="flex items-center gap-1 text-sm">
               <Clock className="h-4 w-4" />
               <span>{duration}</span>
             </div>
-            <div className="flex items-center gap-1">
+            
+            <div className="flex items-center gap-1 text-sm">
               <ThumbsUp className="h-4 w-4" />
               <span>{likes.toLocaleString()}</span>
             </div>
-            <div className="flex items-center gap-1">
+            
+            <div className="flex items-center gap-1 text-sm">
               <BookOpen className="h-4 w-4" />
               <span>{students.toLocaleString()} students</span>
             </div>
+            
             <div className="flex items-center gap-1">
               <div className="flex">
                 {[1, 2, 3, 4, 5].map((star) => (
@@ -105,14 +125,14 @@ const FeaturedCourse = ({
                   />
                 ))}
               </div>
-              <span>{rating.toFixed(1)}</span>
+              <span className="text-sm font-medium ml-1">{rating.toFixed(1)}</span>
             </div>
           </div>
           
           <div className="flex flex-wrap gap-3">
-            <Button asChild className="bg-learntube-red hover:bg-learntube-dark-red">
+            <Button asChild className="bg-learntube-red hover:bg-learntube-dark-red gap-2">
               <Link to={`/course/${id}`}>
-                <Play className="h-4 w-4 mr-2" />
+                <Play className="h-4 w-4" />
                 Start Learning
               </Link>
             </Button>

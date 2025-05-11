@@ -31,6 +31,9 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/courses" element={<Index />} /> 
+            <Route path="/explore" element={<Index />} />
+            <Route path="/saved-courses" element={<Index />} />
             <Route path="/course/:courseId" element={<CoursePage />} />
             <Route path="/course-not-found/:courseId" element={<CourseNotFound />} />
             <Route path="/creator-studio" element={<CreatorStudio />} />
