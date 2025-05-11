@@ -1,72 +1,73 @@
 
-import { Link, useParams } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Search, ArrowLeft, Home, Book } from 'lucide-react';
-import Navbar from '@/components/Navbar';
+import { useNavigate, useParams, Link } from "react-router-dom";
+import { useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, BookOpen, Frown, Search } from "lucide-react";
+import { Card } from "@/components/ui/card";
 
 const CourseNotFound = () => {
-  const { courseId } = useParams();
+  const { courseId } = useParams<{ courseId: string }>();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    console.error("Course not found:", courseId);
+  }, [courseId]);
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <div className="container max-w-4xl mx-auto py-12 px-4">
-        <div className="bg-card rounded-2xl shadow-xl p-8 border border-border">
-          <div className="flex flex-col items-center text-center">
-            <div className="relative w-32 h-32 mb-6">
-              <div className="absolute inset-0 bg-learntube-red/10 rounded-full flex items-center justify-center animate-pulse"></div>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Book className="h-16 w-16 text-learntube-red" />
-                <Search className="h-8 w-8 text-learntube-dark-red absolute bottom-3 right-3" />
-              </div>
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      <Card className="max-w-md w-full p-8 shadow-lg">
+        <div className="mb-6 flex justify-center">
+          <div className="w-20 h-20 rounded-full bg-yellow-100 flex items-center justify-center">
+            <Frown className="h-10 w-10 text-yellow-500" />
+          </div>
+        </div>
+        
+        <h1 className="text-3xl font-bold mb-4 text-center">Course Not Found</h1>
+        
+        <p className="text-muted-foreground mb-6 text-center">
+          The course "{courseId}" doesn't exist or may have been removed.
+        </p>
+        
+        <div className="grid gap-4">
+          <Button asChild variant="outline" className="w-full">
+            <Link to="/" className="flex items-center justify-center gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              Back to Home
+            </Link>
+          </Button>
+          
+          <Button asChild className="w-full">
+            <Link to="/creator-studio" className="flex items-center justify-center gap-2">
+              <BookOpen className="h-4 w-4" />
+              Explore Courses
+            </Link>
+          </Button>
+          
+          <div className="relative mt-4">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-gray-300" />
             </div>
-            
-            <h1 className="text-3xl font-bold mb-2">Course Not Found</h1>
-            <p className="text-lg text-muted-foreground mb-6">
-              We couldn't find the course with ID: <span className="font-mono bg-muted px-2 py-1 rounded">{courseId}</span>
-            </p>
-            <p className="text-muted-foreground mb-8 max-w-lg">
-              This course may have been removed, renamed, or is temporarily unavailable. 
-              Please check the URL or try searching for the course.
-            </p>
-            
-            <div className="flex flex-wrap gap-4 justify-center">
-              <Button asChild variant="default" size="lg" className="gap-2 bg-learntube-red hover:bg-learntube-dark-red">
-                <Link to="/">
-                  <Home className="h-5 w-5" />
-                  Browse Courses
-                </Link>
-              </Button>
-              <Button asChild variant="outline" size="lg" className="gap-2">
-                <Link to="/">
-                  <ArrowLeft className="h-5 w-5" />
-                  Back to Home
-                </Link>
-              </Button>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">
+                Or search for more courses
+              </span>
             </div>
           </div>
           
-          <div className="mt-12 border-t pt-8">
-            <h2 className="text-lg font-semibold mb-4">You might be interested in these courses:</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {[1, 2, 3].map((i) => (
-                <Link to={`/course/recommended-${i}`} key={i} 
-                  className="group flex items-center gap-3 p-3 rounded-lg bg-accent/50 hover:bg-accent transition-colors">
-                  <div className="w-12 h-12 rounded bg-muted flex items-center justify-center shrink-0">
-                    <Book className="h-6 w-6 text-primary/70" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium group-hover:text-primary transition-colors">
-                      Recommended Course {i}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">Popular course</p>
-                  </div>
-                </Link>
-              ))}
+          <div className="flex mt-4">
+            <div className="relative w-full">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <input
+                placeholder="Search for courses..."
+                className="w-full py-2 pl-10 pr-4 rounded-l-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary"
+              />
             </div>
+            <Button type="submit" className="rounded-l-none">
+              Search
+            </Button>
           </div>
         </div>
-      </div>
+      </Card>
     </div>
   );
 };
