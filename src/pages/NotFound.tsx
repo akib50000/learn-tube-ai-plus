@@ -1,5 +1,5 @@
 
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, Link, Navigate } from "react-router-dom";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Frown } from "lucide-react";
@@ -13,6 +13,12 @@ const NotFound = () => {
       location.pathname
     );
   }, [location.pathname]);
+
+  // If it's a course path, redirect to the CourseNotFound page
+  if (location.pathname.match(/^\/course\/[^/]+$/)) {
+    const courseId = location.pathname.split('/')[2];
+    return <Navigate to={`/course-not-found/${courseId}`} replace />;
+  }
 
   const isCourseNotFound = location.pathname.includes("/course/");
 

@@ -93,6 +93,16 @@
   body {
     @apply bg-background text-foreground;
   }
+  
+  /* Airbnb-style typography */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-medium tracking-tight;
+  }
+  
+  /* Airbnb-style focus states */
+  :focus-visible {
+    @apply outline-none ring-2 ring-primary ring-offset-2;
+  }
 }
 
 @layer components {
@@ -126,5 +136,52 @@
   
   .ai-chat-message.ai {
     @apply bg-gray-100 dark:bg-gray-700/30;
+  }
+  
+  /* Airbnb-style components */
+  .airbnb-card {
+    @apply bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden hover:shadow-md transition-shadow;
+  }
+  
+  .airbnb-input {
+    @apply w-full px-4 py-2.5 text-base bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent;
+  }
+  
+  .airbnb-btn {
+    @apply px-6 py-3 font-medium rounded-lg transition-colors;
+  }
+  
+  .airbnb-btn-primary {
+    @apply bg-learntube-red text-white hover:bg-learntube-dark-red;
+  }
+  
+  .airbnb-tag {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200;
+  }
+  
+  .airbnb-section {
+    @apply py-12 px-4 sm:px-6 lg:px-8;
+  }
+  
+  .airbnb-grid {
+    @apply grid gap-6;
+  }
+  
+  @screen sm {
+    .airbnb-grid {
+      @apply grid-cols-2;
+    }
+  }
+  
+  @screen md {
+    .airbnb-grid {
+      @apply grid-cols-3;
+    }
+  }
+  
+  @screen lg {
+    .airbnb-grid {
+      @apply grid-cols-4;
+    }
   }
 }
