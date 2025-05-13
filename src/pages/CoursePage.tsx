@@ -9,6 +9,9 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { cn } from '@/lib/utils';
 import {
   BookOpen,
@@ -30,12 +33,21 @@ import {
   Plus,
   Search,
   Heart,
+  Bookmark,
+  FileCode,
+  MessageCircle,
+  Save
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useTheme } from '@/hooks/use-theme';
-import { formatNumber, formatDuration } from '@/lib/utils';
+import { formatNumber } from '@/lib/utils';
 import AITutorTab from '@/components/AITutorTab';
 import FeatureItem from '@/components/CourseFeatureItem';
+import VideoPlayer from '@/components/VideoPlayer';
+import VideoChapters from '@/components/VideoChapters';
+import PracticeExercises from '@/components/PracticeExercises';
+import CodeChallenge from '@/components/CodeChallenge';
+import ProgressTracker from '@/components/ProgressTracker';
 
 // Interface definitions for Module, Lesson, Review, Question, Answer
 interface Module {
@@ -97,12 +109,63 @@ const CoursePage = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentLessonId, setCurrentLessonId] = useState<string>("");
+  const [bookmarkedLessons, setBookmarkedLessons] = useState<string[]>([]);
+  const [chatMessage, setChatMessage] = useState("");
   const { toast } = useToast();
   const { theme } = useTheme();
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(100);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+
+  // Mock chapters for video player
+  const videoChapters = [
+    { id: "chapter-1", title: "Introduction", timestamp: 0 },
+    { id: "chapter-2", title: "Core Concepts", timestamp: 120 },
+    { id: "chapter-3", title: "Advanced Techniques", timestamp: 360 },
+    { id: "chapter-4", title: "Practical Examples", timestamp: 600 },
+    { id: "chapter-5", title: "Conclusion", timestamp: 840 }
+  ];
+
+  // Mock exercises for practice
+  const exercises = [
+    { id: "ex-1", title: "Basic DOM Manipulation", difficulty: "Easy", points: 10 },
+    { id: "ex-2", title: "Event Handling Challenge", difficulty: "Medium", points: 25 },
+    { id: "ex-3", title: "API Integration Exercise", difficulty: "Hard", points: 50 }
+  ];
+
+  // Mock coding challenges
+  const codingChallenges = [
+    {
+      id: "challenge-1",
+      title: "Form Validation",
+      description: "Create a form validation function that checks for required fields, email format, and password strength.",
+      starterCode: "function validateForm(formData) {\n  // Your code here\n  \n  return isValid;\n}",
+      testCases: ["Basic validation", "Email format check", "Password strength"]
+    },
+    {
+      id: "challenge-2",
+      title: "Array Manipulation",
+      description: "Implement a function that filters and transforms an array based on given criteria.",
+      starterCode: "function transformArray(arr, filterFn, mapFn) {\n  // Your code here\n  \n  return result;\n}",
+      testCases: ["Empty array", "Filter odd numbers", "Transform to objects"]
+    }
+  ];
+
+  // Mock progress data
+  const progressData = {
+    modules: [
+      { id: "m1", title: "Introduction to Web Dev", completed: 4, total: 4 },
+      { id: "m2", title: "React Fundamentals", completed: 3, total: 6 },
+      { id: "m3", title: "Advanced React", completed: 0, total: 4 }
+    ],
+    learningPath: [
+      { id: "path-1", title: "Complete Module 1", completed: true },
+      { id: "path-2", title: "Complete React Fundamentals", completed: false },
+      { id: "path-3", title: "Build First Project", completed: false },
+      { id: "path-4", title: "Advanced React Patterns", completed: false, locked: true }
+    ]
+  };
 
   useEffect(() => {
     // Simulate API call to fetch course data
@@ -144,6 +207,11 @@ const CoursePage = () => {
               "Downloadable source code",
               "Certificate of completion",
               "Lifetime access to updates"
+            ],
+            resources: [
+              { id: "res-1", title: "Course Slides", type: "PDF", size: "2.4 MB" },
+              { id: "res-2", title: "Starter Code", type: "ZIP", size: "5.7 MB" },
+              { id: "res-3", title: "Reference Guide", type: "PDF", size: "1.8 MB" }
             ]
           };
           
@@ -315,6 +383,9 @@ const CoursePage = () => {
             setCurrentLessonId(mockModules[0].lessons[0].id);
           }
           
+          // Set some bookmarked lessons for demo
+          setBookmarkedLessons(['lesson-1-2', 'lesson-2-3']);
+          
           const mockReviews = [
             {
               id: "review-1",
@@ -442,6 +513,38 @@ const CoursePage = () => {
       variant: "default",
     });
   };
+
+  const toggleBookmark = (lessonId: string) => {
+    if (bookmarkedLessons.includes(lessonId)) {
+      setBookmarkedLessons(bookmarkedLessons.filter(id => id !== lessonId));
+      toast({
+        title: "Bookmark removed",
+        description: "Lesson removed from your bookmarks",
+        variant: "default",
+      });
+    } else {
+      setBookmarkedLessons([...bookmarkedLessons, lessonId]);
+      toast({
+        title: "Bookmark added",
+        description: "Lesson added to your bookmarks",
+        variant: "success",
+      });
+    }
+  };
+
+  const handleSendMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!chatMessage.trim()) return;
+    
+    // In a real app, this would send the message to an AI service
+    toast({
+      title: "Message sent",
+      description: "The AI tutor will respond shortly",
+      variant: "default",
+    });
+    
+    setChatMessage("");
+  };
   
   // If course not found, show error page
   if (!isLoading && !course) {
@@ -472,7 +575,7 @@ const CoursePage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <Navbar />
       
       {isLoading ? (
@@ -491,352 +594,280 @@ const CoursePage = () => {
           </div>
         </div>
       ) : (
-        <>
-          {/* Video Player Section */}
-          <div className="bg-black text-white">
-            <div className="container py-6">
-              <div className="relative aspect-video rounded-lg overflow-hidden">
-                <img 
-                  src={course.thumbnail} 
-                  alt={course.title} 
-                  className="absolute inset-0 w-full h-full object-cover opacity-20"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent"></div>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  {!isPlaying && (
-                    <div className="text-center">
-                      <Button 
-                        size="lg" 
-                        className="mb-4 rounded-full h-16 w-16 flex items-center justify-center"
-                        onClick={handleTogglePlay}
-                      >
-                        <Play className="h-8 w-8 ml-1" />
-                      </Button>
-                      <h2 className="text-xl font-medium">
-                        {modules[0]?.lessons[0]?.title || "Introduction to the Course"}
-                      </h2>
-                    </div>
-                  )}
-                </div>
-                
-                {/* Video Controls */}
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
-                  <Progress value={30} className="h-1 mb-3" />
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Button size="icon" variant="ghost" className="text-white" onClick={handleTogglePlay}>
-                        {isPlaying ? (
-                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
-                            <rect x="6" y="4" width="4" height="16" />
-                            <rect x="14" y="4" width="4" height="16" />
-                          </svg>
-                        ) : (
-                          <Play className="h-4 w-4" />
-                        )}
-                      </Button>
-                      <span className="text-xs">4:25 / 15:30</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Button size="icon" variant="ghost" className="text-white" onClick={handleDownload}>
-                        <Download className="h-4 w-4" />
-                      </Button>
-                      <Button size="icon" variant="ghost" className="text-white">
-                        <Settings className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
+        <div className="flex flex-1 overflow-hidden">
+          {/* Left Panel - Course Navigation */}
+          <div className="hidden md:flex w-64 border-r flex-shrink-0 flex-col h-[calc(100vh-4rem)]">
+            <div className="p-4 border-b">
+              <h2 className="text-lg font-semibold">Course Content</h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                {modules.length} modules • {modules.reduce((acc, module) => acc + module.lessons.length, 0)} lessons
+              </p>
+            </div>
+            
+            <ScrollArea className="flex-1">
+              {/* Expandable Modules */}
+              <div className="p-2">
+                <h3 className="px-3 py-2 text-sm font-medium">Modules</h3>
+                <div className="space-y-1">
+                  {modules.map((module) => (
+                    <Collapsible 
+                      key={module.id} 
+                      open={module.isExpanded}
+                      className="border rounded-md overflow-hidden mb-2"
+                    >
+                      <CollapsibleTrigger asChild>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full flex justify-between items-center p-3 h-auto"
+                          onClick={() => toggleModuleExpansion(module.id)}
+                        >
+                          <div className="flex items-start">
+                            <div className="mr-2 bg-primary/10 rounded-full w-6 h-6 flex items-center justify-center mt-0.5">
+                              <List className="h-3 w-3 text-primary" />
+                            </div>
+                            <div className="text-left">
+                              <p className="font-medium text-sm">{module.title}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {module.lessons.length} lessons • {module.duration}
+                              </p>
+                            </div>
+                          </div>
+                          {module.isExpanded ? (
+                            <ChevronUp className="h-4 w-4 shrink-0 text-muted-foreground" />
+                          ) : (
+                            <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
+                          )}
+                        </Button>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent className="border-t">
+                        {module.lessons.map((lesson) => (
+                          <Button 
+                            key={lesson.id}
+                            variant="ghost"
+                            className={cn(
+                              "w-full justify-start pl-11 pr-2 py-2 h-auto text-left",
+                              currentLessonId === lesson.id && "bg-muted",
+                              lesson.isLocked && "opacity-60"
+                            )}
+                            onClick={() => !lesson.isLocked && handleSelectLesson(lesson.id)}
+                            disabled={lesson.isLocked}
+                          >
+                            <div className="flex items-center justify-between w-full gap-1">
+                              <div className="flex items-center gap-2">
+                                {lesson.isCompleted ? (
+                                  <CheckCircle className="h-3 w-3 text-green-500" />
+                                ) : lesson.isLocked ? (
+                                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3 w-3 text-muted-foreground">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                                  </svg>
+                                ) : (
+                                  <Play className="h-3 w-3 text-primary" />
+                                )}
+                                <span className="text-xs font-medium truncate">{lesson.title}</span>
+                              </div>
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-[10px] text-muted-foreground">{lesson.duration}</span>
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  className="h-5 w-5 p-0"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleBookmark(lesson.id);
+                                  }}
+                                >
+                                  <Bookmark 
+                                    className={cn(
+                                      "h-3 w-3",
+                                      bookmarkedLessons.includes(lesson.id) 
+                                        ? "fill-yellow-400 text-yellow-400" 
+                                        : "text-muted-foreground"
+                                    )} 
+                                  />
+                                </Button>
+                              </div>
+                            </div>
+                          </Button>
+                        ))}
+                      </CollapsibleContent>
+                    </Collapsible>
+                  ))}
                 </div>
               </div>
-            </div>
+              
+              {/* Lesson Progression Tracker */}
+              <div className="p-4 border-t">
+                <h3 className="mb-2 text-sm font-medium">Your Progress</h3>
+                <Progress 
+                  value={course.progress} 
+                  className="h-2 mb-1" 
+                />
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>{course.progress}% complete</span>
+                  <span>12/36 lessons</span>
+                </div>
+              </div>
+              
+              {/* Bookmarked Sections */}
+              <div className="p-4 border-t">
+                <h3 className="mb-2 text-sm font-medium">Bookmarked Lessons</h3>
+                {bookmarkedLessons.length > 0 ? (
+                  <div className="space-y-2">
+                    {bookmarkedLessons.map(bookmarkId => {
+                      const lesson = modules
+                        .flatMap(module => module.lessons)
+                        .find(lesson => lesson.id === bookmarkId);
+                      
+                      return lesson ? (
+                        <Button 
+                          key={bookmarkId}
+                          variant="ghost"
+                          size="sm"
+                          className="w-full justify-start h-auto py-1 text-left"
+                          onClick={() => handleSelectLesson(bookmarkId)}
+                        >
+                          <div className="flex items-center gap-2">
+                            <Bookmark className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                            <span className="text-xs truncate">{lesson.title}</span>
+                          </div>
+                        </Button>
+                      ) : null;
+                    })}
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted-foreground">No bookmarks yet</p>
+                )}
+              </div>
+              
+              {/* Resources and Downloads */}
+              <div className="p-4 border-t">
+                <h3 className="mb-2 text-sm font-medium">Course Resources</h3>
+                <div className="space-y-2">
+                  {course.resources && course.resources.map((resource: any) => (
+                    <Button 
+                      key={resource.id}
+                      variant="outline"
+                      size="sm"
+                      className="w-full justify-start h-auto py-2 text-left"
+                      onClick={handleDownload}
+                    >
+                      <div className="flex justify-between items-center w-full">
+                        <div className="flex items-center gap-2">
+                          {resource.type === 'PDF' ? (
+                            <FileText className="h-3.5 w-3.5 text-red-500" />
+                          ) : resource.type === 'ZIP' ? (
+                            <Download className="h-3.5 w-3.5 text-blue-500" />
+                          ) : (
+                            <Download className="h-3.5 w-3.5" />
+                          )}
+                          <div>
+                            <p className="text-xs font-medium">{resource.title}</p>
+                            <p className="text-[10px] text-muted-foreground">{resource.size}</p>
+                          </div>
+                        </div>
+                        <Download className="h-3 w-3 text-muted-foreground" />
+                      </div>
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </ScrollArea>
           </div>
           
-          {/* Main Content */}
-          <div className="container py-8 px-4">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Left Side - Course Content */}
-              <div className="lg:col-span-2">
-                <div className="mb-6">
-                  <h1 className="text-3xl font-bold mb-3">{course.title}</h1>
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm mb-4">
-                    <div className="flex items-center">
-                      <Star className="h-4 w-4 text-yellow-400 fill-yellow-400 mr-1" />
-                      <span className="font-medium">{course.rating}</span>
-                      <span className="text-muted-foreground ml-1">({formatNumber(course.reviewCount)} reviews)</span>
-                    </div>
-                    <div className="flex items-center">
-                      <User className="h-4 w-4 mr-1 text-muted-foreground" />
-                      <span>{formatNumber(course.studentCount)} students</span>
-                    </div>
-                    <div className="flex items-center">
-                      <Clock className="h-4 w-4 mr-1 text-muted-foreground" />
-                      <span>{course.duration}</span>
-                    </div>
-                    <div className="flex items-center">
-                      <Globe className="h-4 w-4 mr-1 text-muted-foreground" />
-                      <span>{course.language}</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center mb-6">
-                    <Avatar className="h-12 w-12 mr-3">
-                      <AvatarImage src={course.instructor.avatar} alt={course.instructor.name} />
-                      <AvatarFallback>{course.instructor.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <Link 
-                        to={`/profile/${course.instructor.id}/creator`}
-                        className="font-medium hover:underline"
+          {/* Center Panel - Course Content */}
+          <div className="flex-1 overflow-auto">
+            <div className="bg-black text-white">
+              <div className="container max-w-5xl mx-auto py-6">
+                <VideoPlayer 
+                  videoUrl="#"
+                  title={modules[0]?.lessons[0]?.title || "Introduction to the Course"}
+                  thumbnail={course.thumbnail}
+                />
+              </div>
+            </div>
+            
+            <div className="container max-w-5xl mx-auto py-6 px-4">
+              <div className="flex flex-col md:flex-row gap-6">
+                {/* Main Content Area */}
+                <div className="flex-1">
+                  <div>
+                    <h1 className="text-2xl font-bold mb-2">
+                      {modules[0]?.lessons[0]?.title || "Introduction to the Course"}
+                    </h1>
+                    <div className="flex items-center gap-x-4 text-sm mb-6">
+                      <div className="flex items-center">
+                        <Clock className="h-4 w-4 mr-1 text-muted-foreground" />
+                        <span>15:30</span>
+                      </div>
+                      <div className="flex items-center">
+                        <Play className="h-4 w-4 mr-1 text-muted-foreground" />
+                        <span>Lesson 1.1</span>
+                      </div>
+                      <Button 
+                        variant="ghost"
+                        size="sm"
+                        className="flex items-center gap-1"
+                        onClick={() => toggleBookmark("lesson-1-1")}
                       >
-                        {course.instructor.name}
-                      </Link>
-                      <p className="text-sm text-muted-foreground">{course.instructor.bio}</p>
+                        <Bookmark 
+                          className={cn(
+                            "h-4 w-4", 
+                            bookmarkedLessons.includes("lesson-1-1") 
+                              ? "fill-yellow-400 text-yellow-400" 
+                              : "text-muted-foreground"
+                          )} 
+                        />
+                        <span>Bookmark</span>
+                      </Button>
                     </div>
                   </div>
-                  
-                  {course.progress > 0 && (
-                    <Card className="mb-6">
-                      <CardContent className="p-4">
-                        <h3 className="font-medium mb-2">Your Progress</h3>
-                        <div className="flex items-center justify-between text-sm mb-1.5">
-                          <span>{course.progress}% complete</span>
-                          <span>12/36 lessons</span>
-                        </div>
-                        <Progress value={course.progress} className="h-2" />
-                        <Button className="w-full mt-4">Continue Learning</Button>
-                      </CardContent>
-                    </Card>
-                  )}
-                </div>
-                
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                  <TabsList className="mb-6 w-full justify-start">
-                    <TabsTrigger value="overview" className="flex-1 sm:flex-none">Overview</TabsTrigger>
-                    <TabsTrigger value="curriculum" className="flex-1 sm:flex-none">Curriculum</TabsTrigger>
-                    <TabsTrigger value="reviews" className="flex-1 sm:flex-none">Reviews</TabsTrigger>
-                    <TabsTrigger value="qa" className="flex-1 sm:flex-none">Q&A</TabsTrigger>
-                    <TabsTrigger value="ai-tutor" className="flex-1 sm:flex-none">AI Tutor</TabsTrigger>
-                  </TabsList>
-                  
-                  <TabsContent value="overview">
-                    <div className="space-y-8">
-                      <div>
-                        <h3 className="text-xl font-medium mb-3">About This Course</h3>
-                        <p className="text-muted-foreground mb-4">
-                          {course.description}
-                        </p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                          <div className="space-y-4">
-                            <div>
-                              <h4 className="font-medium mb-2">What you'll learn</h4>
-                              <ul className="space-y-2">
-                                <FeatureItem icon={CheckCircle}>Build complete web applications from front to back end</FeatureItem>
-                                <FeatureItem icon={CheckCircle}>Master React hooks, context API, and state management</FeatureItem>
-                                <FeatureItem icon={CheckCircle}>Develop REST APIs with Node.js and Express</FeatureItem>
-                                <FeatureItem icon={CheckCircle}>Connect and interact with MongoDB databases</FeatureItem>
-                                <FeatureItem icon={CheckCircle}>Deploy applications to production environments</FeatureItem>
-                              </ul>
-                            </div>
-                          </div>
-                          <div className="space-y-4">
-                            <div>
-                              <h4 className="font-medium mb-2">Course features</h4>
-                              <ul className="space-y-2">
-                                {course.features.map((feature: string, index: number) => (
-                                  <FeatureItem key={index} icon={CheckCircle}>{feature}</FeatureItem>
-                                ))}
-                              </ul>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <h3 className="text-xl font-medium mb-3">Requirements</h3>
-                        <ul className="space-y-2">
-                          <FeatureItem>Basic knowledge of HTML, CSS, and JavaScript</FeatureItem>
-                          <FeatureItem>A computer with an internet connection</FeatureItem>
-                          <FeatureItem>Code editor (VS Code recommended)</FeatureItem>
-                        </ul>
-                      </div>
-                      
-                      <div>
-                        <h3 className="text-xl font-medium mb-3">Tags</h3>
-                        <div className="flex flex-wrap gap-2">
-                          {course.tags.map((tag: string) => (
-                            <Badge key={tag} variant="secondary">{tag}</Badge>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </TabsContent>
-                  
-                  <TabsContent value="curriculum">
-                    <div>
-                      <div className="flex justify-between mb-6">
-                        <div>
-                          <h3 className="text-xl font-medium">Course Curriculum</h3>
-                          <p className="text-sm text-muted-foreground">
-                            {modules.length} modules • {
-                              modules.reduce((acc, module) => acc + module.lessons.length, 0)
-                            } lessons • {course.duration} total length
+
+                  <Tabs defaultValue="content" className="mb-8">
+                    <TabsList className="mb-4">
+                      <TabsTrigger value="content">Content</TabsTrigger>
+                      <TabsTrigger value="exercises">Exercises</TabsTrigger>
+                      <TabsTrigger value="challenges">Coding Challenges</TabsTrigger>
+                      <TabsTrigger value="notes">Notes</TabsTrigger>
+                    </TabsList>
+
+                    <TabsContent value="content">
+                      <Card className="mb-6">
+                        <CardContent className="p-6">
+                          <h2 className="text-lg font-medium mb-4">Lesson Content</h2>
+                          <p className="mb-4">
+                            Welcome to the first lesson of our Web Development Course. In this introduction, we'll cover the basic setup and tools you'll need throughout the course.
                           </p>
-                        </div>
-                        {course.progress > 0 && (
-                          <Button variant="outline" size="sm">
-                            <CheckCircle className="h-4 w-4 mr-2" />
-                            Mark All as Completed
-                          </Button>
-                        )}
+                          <p className="mb-4">
+                            Web development is a dynamic field that combines creativity and technical skills to create engaging online experiences. We'll start with the fundamentals of HTML, CSS, and JavaScript before diving into more advanced frameworks like React.
+                          </p>
+                          <p>
+                            By the end of this course, you'll have built multiple projects and gained the skills needed to develop modern web applications from scratch.
+                          </p>
+                        </CardContent>
+                      </Card>
+
+                      <div className="mb-6">
+                        <h3 className="text-lg font-medium mb-4">Video Chapters</h3>
+                        <VideoChapters chapters={videoChapters} />
                       </div>
-                      
-                      <div className="space-y-4">
-                        {modules.map((module) => (
-                          <Card key={module.id} className="overflow-hidden">
-                            <button 
-                              className="w-full flex justify-between items-center p-4 hover:bg-muted/50 transition-colors text-left"
-                              onClick={() => toggleModuleExpansion(module.id)}
-                            >
-                              <div className="flex items-center">
-                                <div className="mr-4 bg-primary/10 rounded-full w-8 h-8 flex items-center justify-center">
-                                  <List className="h-4 w-4 text-primary" />
-                                </div>
-                                <div>
-                                  <h4 className="font-medium">{module.title}</h4>
-                                  <p className="text-sm text-muted-foreground">
-                                    {module.lessons.length} lessons • {module.duration}
-                                  </p>
-                                </div>
-                              </div>
-                              {module.isExpanded ? (
-                                <ChevronUp className="h-5 w-5 text-muted-foreground" />
-                              ) : (
-                                <ChevronDown className="h-5 w-5 text-muted-foreground" />
-                              )}
-                            </button>
-                            
-                            {module.isExpanded && (
-                              <div className="border-t">
-                                {module.lessons.map((lesson) => (
-                                  <button
-                                    key={lesson.id}
-                                    className={cn(
-                                      "w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors text-left",
-                                      currentLessonId === lesson.id && "bg-muted",
-                                      lesson.isLocked && "opacity-60"
-                                    )}
-                                    onClick={() => !lesson.isLocked && handleSelectLesson(lesson.id)}
-                                    disabled={lesson.isLocked}
-                                  >
-                                    <div className="flex items-center">
-                                      <div className="mr-4 rounded-full w-8 h-8 flex items-center justify-center">
-                                        {lesson.isCompleted ? (
-                                          <div className="bg-green-100 dark:bg-green-900/30 w-8 h-8 rounded-full flex items-center justify-center">
-                                            <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
-                                          </div>
-                                        ) : lesson.isLocked ? (
-                                          <div className="bg-muted w-8 h-8 rounded-full flex items-center justify-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 text-muted-foreground">
-                                              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                                              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                                            </svg>
-                                          </div>
-                                        ) : (
-                                          <div className="bg-primary/10 w-8 h-8 rounded-full flex items-center justify-center">
-                                            <Play className="h-4 w-4 text-primary" />
-                                          </div>
-                                        )}
-                                      </div>
-                                      <div className="text-left">
-                                        <h5 className="font-medium text-sm">{lesson.title}</h5>
-                                        <div className="flex items-center text-xs text-muted-foreground">
-                                          <Clock className="h-3 w-3 mr-1" />
-                                          <span>{lesson.duration}</span>
-                                        </div>
-                                      </div>
-                                    </div>
-                                    
-                                    {currentLessonId === lesson.id && (
-                                      <Badge variant="secondary">Currently Viewing</Badge>
-                                    )}
-                                  </button>
-                                ))}
-                              </div>
-                            )}
-                          </Card>
-                        ))}
-                      </div>
-                    </div>
-                  </TabsContent>
-                  
-                  <TabsContent value="reviews">
-                    <div className="space-y-8">
-                      <div className="flex flex-col md:flex-row gap-8">
-                        <div className="md:w-1/3">
-                          <div className="text-center md:text-left">
-                            <div className="text-5xl font-bold mb-2">{course.rating}</div>
-                            <div className="flex justify-center md:justify-start mb-2">
-                              {Array(5).fill(0).map((_, i) => (
-                                <Star 
-                                  key={i} 
-                                  className={cn(
-                                    "h-5 w-5", 
-                                    i < Math.floor(course.rating) 
-                                      ? "fill-yellow-400 text-yellow-400" 
-                                      : "text-gray-300"
-                                  )}
-                                />
-                              ))}
-                            </div>
-                            <p className="text-muted-foreground">{course.reviewCount} reviews</p>
-                          </div>
-                          <div className="mt-6">
-                            <h4 className="font-medium mb-3">Rating breakdown</h4>
-                            {[5, 4, 3, 2, 1].map(star => (
-                              <div key={star} className="flex items-center mb-2">
-                                <div className="w-16 text-sm">{star} stars</div>
-                                <div className="flex-1 mx-2">
-                                  <div className="h-2 rounded-full bg-muted overflow-hidden">
-                                    <div 
-                                      className={cn(
-                                        "h-full",
-                                        star === 5 ? "w-[70%] bg-green-500" :
-                                        star === 4 ? "w-[20%] bg-green-400" :
-                                        star === 3 ? "w-[7%] bg-yellow-400" :
-                                        star === 2 ? "w-[2%] bg-orange-400" :
-                                        "w-[1%] bg-red-500"
-                                      )}
-                                    ></div>
-                                  </div>
-                                </div>
-                                <div className="w-12 text-right text-sm text-muted-foreground">
-                                  {star === 5 ? '70%' :
-                                   star === 4 ? '20%' :
-                                   star === 3 ? '7%' :
-                                   star === 2 ? '2%' : '1%'}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                        
-                        <div className="md:w-2/3">
-                          <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-xl font-medium">Student Reviews</h3>
-                            <div className="flex gap-2">
-                              <select className="text-sm bg-background border rounded-md p-1">
-                                <option>Most Recent</option>
-                                <option>Highest Rated</option>
-                                <option>Lowest Rated</option>
-                              </select>
-                            </div>
-                          </div>
-                          
-                          <div className="space-y-6">
-                            {reviews.map(review => (
-                              <div key={review.id} className="border-b pb-6 last:border-b-0">
-                                <div className="flex items-start">
-                                  <Avatar className="h-10 w-10 mr-3">
-                                    <AvatarImage src={review.user.avatar} alt={review.user.name} />
-                                    <AvatarFallback>{review.user.name.charAt(0)}</AvatarFallback>
-                                  </Avatar>
-                                  <div className="flex-1">
-                                    <div className="flex items-center justify-between">
+
+                      <Card>
+                        <CardContent className="p-6">
+                          <h3 className="text-lg font-medium mb-4">Key Takeaways</h3>
+                          <ul className="space-y-2">
+                            <FeatureItem icon={CheckCircle}>Understanding of the web development ecosystem</FeatureItem>
+                            <FeatureItem icon={CheckCircle}>Knowledge of essential development tools</FeatureItem>
+                            <FeatureItem icon={CheckCircle}>Basic setup for your development environment</FeatureItem>
+                            <FeatureItem icon={CheckCircle}>Overview of the course structure and projects</FeatureItem>
+                          </ul>
+                        </CardContent>
+                      </Card>
+                    </TabsContent>
+
+                    <TabsContent value="exercises">
+                      <Card className="mb-6">
+                        <CardContent className="p-6">
+                          <h2 className="text-lg font-medium mb-4">Practice Exercises</h2>
+                          <p className="mb-6">
+                            Reinforce what you've learned
