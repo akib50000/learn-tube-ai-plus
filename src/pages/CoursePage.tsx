@@ -1,3 +1,4 @@
+
 import { useState, useEffect, Dispatch, SetStateAction, FormEvent, Element } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -129,9 +130,9 @@ const CoursePage = () => {
 
   // Mock exercises for practice - Fixed the difficulty type to use string literals
   const exercises = [
-    { id: "ex-1", title: "Basic DOM Manipulation", difficulty: "Easy" as const, points: 10 },
-    { id: "ex-2", title: "Event Handling Challenge", difficulty: "Medium" as const, points: 25 },
-    { id: "ex-3", title: "API Integration Exercise", difficulty: "Hard" as const, points: 50 }
+    { id: "ex-1", title: "Basic DOM Manipulation", difficulty: "Easy" as "Easy" | "Medium" | "Hard", points: 10 },
+    { id: "ex-2", title: "Event Handling Challenge", difficulty: "Medium" as "Easy" | "Medium" | "Hard", points: 25 },
+    { id: "ex-3", title: "API Integration Exercise", difficulty: "Hard" as "Easy" | "Medium" | "Hard", points: 50 }
   ];
 
   // Mock coding challenges
@@ -828,6 +829,7 @@ const CoursePage = () => {
                       <TabsTrigger value="exercises">Exercises</TabsTrigger>
                       <TabsTrigger value="challenges">Coding Challenges</TabsTrigger>
                       <TabsTrigger value="notes">Notes</TabsTrigger>
+                      <TabsTrigger value="ai-tutor">AI Tutor</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="content">
@@ -867,4 +869,146 @@ const CoursePage = () => {
                     <TabsContent value="exercises">
                       <Card className="mb-6">
                         <CardContent className="p-6">
-                          <h2 className="text-lg font-
+                          <h2 className="text-lg font-medium mb-4">Practice Exercises</h2>
+                          <p className="mb-6">
+                            Reinforce what you've learned with these practical exercises. Complete them to solidify your understanding.
+                          </p>
+                          
+                          <PracticeExercises exercises={exercises} />
+                        </CardContent>
+                      </Card>
+                    </TabsContent>
+
+                    <TabsContent value="challenges">
+                      <Card className="mb-6">
+                        <CardContent className="p-6">
+                          <h2 className="text-lg font-medium mb-4">Coding Challenges</h2>
+                          <p className="mb-6">
+                            Test your skills with these coding challenges. Write code to solve real-world problems.
+                          </p>
+                          
+                          <div className="space-y-6">
+                            <CodeChallenge challenges={codingChallenges} />
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </TabsContent>
+
+                    <TabsContent value="notes">
+                      <Card className="mb-6">
+                        <CardContent className="p-6">
+                          <h2 className="text-lg font-medium mb-4">Your Notes</h2>
+                          <div className="mb-4">
+                            <Textarea 
+                              placeholder="Take notes for this lesson..." 
+                              className="min-h-[200px]" 
+                            />
+                          </div>
+                          <div className="flex justify-end">
+                            <Button>
+                              <Save className="mr-2 h-4 w-4" />
+                              Save Notes
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                      
+                      <Card>
+                        <CardContent className="p-6">
+                          <h3 className="text-lg font-medium mb-4">Saved Notes</h3>
+                          <p className="text-muted-foreground text-center py-8">
+                            You haven't saved any notes for this lesson yet.
+                          </p>
+                        </CardContent>
+                      </Card>
+                    </TabsContent>
+
+                    <TabsContent value="ai-tutor">
+                      <AITutorTab 
+                        courseTitle={course.title} 
+                        courseSubject={course.tags?.[0]} 
+                        courseId={course.id}
+                      />
+                    </TabsContent>
+                  </Tabs>
+                </div>
+                
+                {/* Right Panel - Additional Info */}
+                <div className="md:w-80 lg:w-96 space-y-6">
+                  <Card>
+                    <CardContent className="p-6">
+                      <h2 className="text-lg font-semibold mb-4">About this Course</h2>
+                      <div className="space-y-4">
+                        <div className="flex items-center">
+                          <User className="h-4 w-4 mr-2 text-muted-foreground" />
+                          <span>Instructor: {course.instructor.name}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <Clock className="h-4 w-4 mr-2 text-muted-foreground" />
+                          <span>Duration: {course.duration}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <FileText className="h-4 w-4 mr-2 text-muted-foreground" />
+                          <span>Level: {course.level}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <Globe className="h-4 w-4 mr-2 text-muted-foreground" />
+                          <span>Language: {course.language}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <MessageSquare className="h-4 w-4 mr-2 text-muted-foreground" />
+                          <span>Students: {formatNumber(course.studentCount)}</span>
+                        </div>
+                      </div>
+                        
+                      <div className="mt-6">
+                        <Button onClick={handleEnrollClick} className="w-full">
+                          Enroll in Course
+                        </Button>
+                        <div className="flex justify-center mt-2">
+                          <Button variant="ghost" size="sm" className="text-xs">
+                            <Share2 className="h-3 w-3 mr-1" />
+                            Share
+                          </Button>
+                          <Button variant="ghost" size="sm" className="text-xs">
+                            <Heart className="h-3 w-3 mr-1" />
+                            Favorite
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card>
+                    <CardContent className="p-6">
+                      <h2 className="text-lg font-semibold mb-4">Your Progress</h2>
+                      <ProgressTracker 
+                        modules={progressData.modules} 
+                        learningPath={progressData.learningPath} 
+                      />
+                    </CardContent>
+                  </Card>
+                  
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-lg font-semibold">Course Tags</h2>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {course.tags.map((tag: string) => (
+                          <Badge key={tag} variant="secondary">{tag}</Badge>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default CoursePage;
