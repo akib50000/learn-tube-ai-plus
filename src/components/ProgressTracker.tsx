@@ -23,7 +23,8 @@ interface ProgressTrackerProps {
   learningPath: LearningPath[];
 }
 
-const ProgressTracker = ({ modules, learningPath }: ProgressTrackerProps) => {
+const ProgressTracker = ({ modules = [], learningPath = [] }: ProgressTrackerProps) => {
+  // Add default values and null checks to prevent errors when props are undefined
   const totalCompleted = modules.reduce((sum, module) => sum + module.completed, 0);
   const totalLessons = modules.reduce((sum, module) => sum + module.total, 0);
   const overallProgress = totalLessons > 0 ? Math.round((totalCompleted / totalLessons) * 100) : 0;
@@ -55,7 +56,10 @@ const ProgressTracker = ({ modules, learningPath }: ProgressTrackerProps) => {
                       {module.completed}/{module.total} completed
                     </span>
                   </div>
-                  <Progress value={(module.completed / module.total) * 100} className="h-2" />
+                  <Progress 
+                    value={(module.completed / Math.max(1, module.total)) * 100} 
+                    className="h-2" 
+                  />
                 </div>
               ))}
             </div>

@@ -43,11 +43,11 @@ interface CourseModulesProps {
   onSelectLesson: (moduleId: string, lessonId: string) => void;
 }
 
-const CourseModules = ({ modules, bookmarks = [], onSelectLesson }: CourseModulesProps) => {
+const CourseModules = ({ modules = [], bookmarks = [], onSelectLesson }: CourseModulesProps) => {
   const [expandedModules, setExpandedModules] = useState<string[]>([modules[0]?.id || '']);
   const [activeTab, setActiveTab] = useState<'modules' | 'bookmarks'>('modules');
   
-  // Calculate overall course progress
+  // Calculate overall course progress with null checks
   const totalCompleted = modules.reduce((sum, module) => sum + module.completed, 0);
   const totalLessons = modules.reduce((sum, module) => sum + module.total, 0);
   const overallProgress = totalLessons > 0 ? Math.round((totalCompleted / totalLessons) * 100) : 0;
@@ -99,7 +99,7 @@ const CourseModules = ({ modules, bookmarks = [], onSelectLesson }: CourseModule
                     <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
                       <span>{module.completed}/{module.total} completed</span>
                       <Progress 
-                        value={(module.completed / module.total) * 100}
+                        value={(module.completed / Math.max(1, module.total)) * 100}
                         className="w-20 h-1.5"
                       />
                     </div>
