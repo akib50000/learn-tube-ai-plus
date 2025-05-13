@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -26,7 +27,6 @@ import {
   ChevronDown,
   ChevronUp,
   List,
-  LucideIcon,
   Settings,
   Plus,
   Search,
@@ -36,6 +36,18 @@ import { useToast } from '@/hooks/use-toast';
 import { useTheme } from '@/hooks/use-theme';
 import { formatNumber, formatDuration } from '@/lib/utils';
 import AITutorTab from '@/components/AITutorTab';
+
+// Feature Item component
+const FeatureItem = ({ icon: Icon, children }: { icon?: React.ComponentType<any>; children: React.ReactNode }) => (
+  <li className="flex items-start">
+    {Icon && (
+      <div className="mr-2 h-5 w-5 text-green-500">
+        <Icon className="h-5 w-5" />
+      </div>
+    )}
+    <span>{children}</span>
+  </li>
+);
 
 interface Module {
   id: string;
@@ -475,7 +487,6 @@ const CoursePage = () => {
       <Navbar />
       
       {isLoading ? (
-        
         <div className="container py-8 px-4">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
@@ -841,4 +852,185 @@ const CoursePage = () => {
                                   <div className="flex-1">
                                     <div className="flex items-center justify-between">
                                       <h4 className="font-medium">{review.user.name}</h4>
-                                      <span className
+                                      <span className="text-sm text-muted-foreground">{review.date}</span>
+                                    </div>
+                                    <div className="flex mt-1 mb-2">
+                                      {Array(5).fill(0).map((_, i) => (
+                                        <Star 
+                                          key={i} 
+                                          className={cn(
+                                            "h-4 w-4", 
+                                            i < review.rating 
+                                              ? "fill-yellow-400 text-yellow-400" 
+                                              : "text-gray-300"
+                                          )}
+                                        />
+                                      ))}
+                                    </div>
+                                    <p className="text-sm">{review.content}</p>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="qa">
+                    <div className="space-y-8">
+                      <div className="flex justify-between items-center mb-4">
+                        <h3 className="text-xl font-medium">Questions & Answers</h3>
+                        <Button>
+                          <MessageSquare className="h-4 w-4 mr-2" />
+                          Ask a Question
+                        </Button>
+                      </div>
+                      
+                      <div className="mb-6">
+                        <div className="relative">
+                          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                          <Input 
+                            placeholder="Search questions..." 
+                            className="pl-10" 
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-6">
+                        {questions.map(question => (
+                          <Card key={question.id} className="overflow-hidden">
+                            <div className="p-4 border-b">
+                              <div className="flex items-start">
+                                <Avatar className="h-10 w-10 mr-3">
+                                  <AvatarImage src={question.user.avatar} />
+                                  <AvatarFallback>{question.user.name.charAt(0)}</AvatarFallback>
+                                </Avatar>
+                                <div className="flex-1">
+                                  <div className="flex justify-between">
+                                    <h4 className="font-medium">{question.user.name}</h4>
+                                    <span className="text-sm text-muted-foreground">{question.date}</span>
+                                  </div>
+                                  <p className="text-sm mt-2">{question.content}</p>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <div className="p-4 bg-muted/30">
+                              <h5 className="font-medium text-sm mb-3">Answers ({question.answers.length})</h5>
+                              <div className="space-y-4">
+                                {question.answers.map(answer => (
+                                  <div key={answer.id} className="pl-4 border-l-2 border-muted">
+                                    <div className="flex items-start">
+                                      <Avatar className="h-8 w-8 mr-3">
+                                        <AvatarImage src={answer.user.avatar} />
+                                        <AvatarFallback>{answer.user.name.charAt(0)}</AvatarFallback>
+                                      </Avatar>
+                                      <div className="flex-1">
+                                        <div className="flex items-center">
+                                          <h6 className="font-medium text-sm">{answer.user.name}</h6>
+                                          {answer.isAccepted && (
+                                            <Badge variant="success" className="ml-2 text-[10px]">
+                                              <CheckCircle className="h-3 w-3 mr-1" />
+                                              Accepted Answer
+                                            </Badge>
+                                          )}
+                                          <span className="text-xs text-muted-foreground ml-auto">{answer.date}</span>
+                                        </div>
+                                        <p className="text-sm mt-2">{answer.content}</p>
+                                        <div className="flex items-center mt-2">
+                                          <Button variant="ghost" size="sm" className="text-xs">
+                                            <ThumbsUp className="h-3 w-3 mr-1" />
+                                            Helpful ({answer.votes})
+                                          </Button>
+                                          <Button variant="ghost" size="sm" className="text-xs">
+                                            <MessageSquare className="h-3 w-3 mr-1" />
+                                            Reply
+                                          </Button>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                              
+                              <div className="mt-4">
+                                <Button variant="ghost" size="sm" className="text-xs">
+                                  <MessageSquare className="h-3 w-3 mr-1" />
+                                  Add Answer
+                                </Button>
+                              </div>
+                            </div>
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="ai-tutor">
+                    <AITutorTab courseTitle={course.title} courseId={courseId || ''} />
+                  </TabsContent>
+                </Tabs>
+              </div>
+              
+              {/* Right Side - Course Info & Enrollment */}
+              <div>
+                <Card className="sticky top-24">
+                  <CardContent className="p-6">
+                    <div className="text-3xl font-bold mb-4">${course.price.toFixed(2)}</div>
+                    <Button className="w-full mb-3" size="lg" onClick={handleEnrollClick}>
+                      Enroll Now
+                    </Button>
+                    <Button className="w-full" variant="outline">
+                      <Heart className="h-4 w-4 mr-2" />
+                      Add to Wishlist
+                    </Button>
+                    
+                    <div className="mt-6 pt-6 border-t">
+                      <div className="font-medium mb-3">This course includes:</div>
+                      <ul className="space-y-2 text-sm">
+                        <li className="flex items-center">
+                          <FileText className="h-4 w-4 mr-2 text-muted-foreground" />
+                          <span>{course.duration} of on-demand video</span>
+                        </li>
+                        <li className="flex items-center">
+                          <FileText className="h-4 w-4 mr-2 text-muted-foreground" />
+                          <span>85 lessons</span>
+                        </li>
+                        <li className="flex items-center">
+                          <Download className="h-4 w-4 mr-2 text-muted-foreground" />
+                          <span>Downloadable resources</span>
+                        </li>
+                        <li className="flex items-center">
+                          <CheckCircle className="h-4 w-4 mr-2 text-muted-foreground" />
+                          <span>Certificate of completion</span>
+                        </li>
+                      </ul>
+                    </div>
+                    
+                    <div className="mt-6 pt-6 border-t">
+                      <div className="font-medium mb-3">Includes access to:</div>
+                      <div className="space-y-3">
+                        <Button variant="ghost" className="w-full justify-start">
+                          <Share2 className="h-4 w-4 mr-2" />
+                          Share this course
+                        </Button>
+                        <Button variant="ghost" className="w-full justify-start">
+                          <MessageSquare className="h-4 w-4 mr-2" />
+                          Gift this course
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
+
+export default CoursePage;
