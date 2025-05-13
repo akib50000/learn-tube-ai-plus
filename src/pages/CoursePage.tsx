@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -36,6 +35,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { useTheme } from '@/hooks/use-theme';
 import { formatNumber, formatDuration } from '@/lib/utils';
+import AITutorTab from '@/components/AITutorTab';
 
 interface Module {
   id: string;
@@ -475,6 +475,7 @@ const CoursePage = () => {
       <Navbar />
       
       {isLoading ? (
+        
         <div className="container py-8 px-4">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
@@ -612,6 +613,7 @@ const CoursePage = () => {
                     <TabsTrigger value="curriculum" className="flex-1 sm:flex-none">Curriculum</TabsTrigger>
                     <TabsTrigger value="reviews" className="flex-1 sm:flex-none">Reviews</TabsTrigger>
                     <TabsTrigger value="qa" className="flex-1 sm:flex-none">Q&A</TabsTrigger>
+                    <TabsTrigger value="ai-tutor" className="flex-1 sm:flex-none">AI Tutor</TabsTrigger>
                   </TabsList>
                   
                   <TabsContent value="overview">
@@ -839,249 +841,4 @@ const CoursePage = () => {
                                   <div className="flex-1">
                                     <div className="flex items-center justify-between">
                                       <h4 className="font-medium">{review.user.name}</h4>
-                                      <span className="text-xs text-muted-foreground">{review.date}</span>
-                                    </div>
-                                    <div className="flex mb-2">
-                                      {Array(5).fill(0).map((_, i) => (
-                                        <Star 
-                                          key={i} 
-                                          className={cn(
-                                            "h-4 w-4", 
-                                            i < review.rating 
-                                              ? "fill-yellow-400 text-yellow-400" 
-                                              : "text-gray-300"
-                                          )}
-                                        />
-                                      ))}
-                                    </div>
-                                    <p className="text-sm">{review.content}</p>
-                                    <div className="flex items-center gap-4 mt-3">
-                                      <Button variant="ghost" size="sm" className="text-xs h-8 px-2">
-                                        <ThumbsUp className="h-3 w-3 mr-1" />
-                                        Helpful
-                                      </Button>
-                                      <Button variant="ghost" size="sm" className="text-xs h-8 px-2">
-                                        <MessageSquare className="h-3 w-3 mr-1" />
-                                        Reply
-                                      </Button>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                          
-                          <div className="text-center mt-6">
-                            <Button variant="outline">Load More Reviews</Button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </TabsContent>
-                  
-                  <TabsContent value="qa">
-                    <div className="space-y-8">
-                      <div className="flex justify-between items-center mb-6">
-                        <h3 className="text-xl font-medium">Questions & Answers</h3>
-                        <Button>Ask a Question</Button>
-                      </div>
-                      
-                      <div className="relative">
-                        <Input
-                          placeholder="Search questions..."
-                          className="pl-10"
-                        />
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      </div>
-                      
-                      <div className="space-y-6">
-                        {questions.map(question => (
-                          <Card key={question.id} className="overflow-hidden">
-                            <div className="p-4 border-b">
-                              <div className="flex items-start">
-                                <Avatar className="h-10 w-10 mr-3">
-                                  <AvatarImage src={question.user.avatar} />
-                                  <AvatarFallback>{question.user.name.charAt(0)}</AvatarFallback>
-                                </Avatar>
-                                <div className="flex-1">
-                                  <div className="flex items-center justify-between">
-                                    <h4 className="font-medium">{question.user.name}</h4>
-                                    <span className="text-xs text-muted-foreground">{question.date}</span>
-                                  </div>
-                                  <p className="text-sm my-2">{question.content}</p>
-                                  <div className="flex items-center gap-4">
-                                    <Button variant="ghost" size="sm" className="text-xs h-8 px-2">
-                                      <ThumbsUp className="h-3 w-3 mr-1" />
-                                      Helpful
-                                    </Button>
-                                    <Button variant="ghost" size="sm" className="text-xs h-8 px-2">
-                                      <MessageSquare className="h-3 w-3 mr-1" />
-                                      Reply
-                                    </Button>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            <div className="bg-muted/30 p-4">
-                              <h5 className="font-medium text-sm mb-3">{question.answers.length} Answers</h5>
-                              <div className="space-y-4">
-                                {question.answers.map(answer => (
-                                  <div key={answer.id} className={cn(
-                                    "rounded-lg p-3",
-                                    answer.isAccepted ? "bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-900/30" : "bg-background"
-                                  )}>
-                                    <div className="flex items-start">
-                                      <Avatar className="h-8 w-8 mr-3">
-                                        <AvatarImage src={answer.user.avatar} />
-                                        <AvatarFallback>{answer.user.name.charAt(0)}</AvatarFallback>
-                                      </Avatar>
-                                      <div className="flex-1">
-                                        <div className="flex items-center justify-between">
-                                          <div className="flex items-center">
-                                            <h6 className="font-medium text-sm">{answer.user.name}</h6>
-                                            {answer.isAccepted && (
-                                              <Badge variant="success" className="ml-2 text-[10px] h-5">
-                                                <CheckCircle className="h-3 w-3 mr-1" />
-                                                Instructor Answer
-                                              </Badge>
-                                            )}
-                                          </div>
-                                          <span className="text-xs text-muted-foreground">{answer.date}</span>
-                                        </div>
-                                        <p className="text-sm my-2">{answer.content}</p>
-                                        <div className="flex items-center gap-4">
-                                          <Button variant="ghost" size="sm" className="text-xs h-7 px-2">
-                                            <ThumbsUp className="h-3 w-3 mr-1" />
-                                            {answer.votes > 0 ? answer.votes : ''}
-                                          </Button>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          </Card>
-                        ))}
-                      </div>
-                      
-                      <div className="text-center mt-6">
-                        <Button variant="outline">Load More Questions</Button>
-                      </div>
-                    </div>
-                  </TabsContent>
-                </Tabs>
-              </div>
-              
-              {/* Right Side - Course Info Card */}
-              <div>
-                <Card className="sticky top-24 shadow-lg">
-                  <div className="relative aspect-video overflow-hidden">
-                    <img 
-                      src={course.thumbnail} 
-                      alt={course.title} 
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Button 
-                        size="lg" 
-                        className="rounded-full h-14 w-14 flex items-center justify-center"
-                        onClick={handleTogglePlay}
-                      >
-                        <Play className="h-7 w-7 ml-1" />
-                      </Button>
-                    </div>
-                  </div>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      {typeof course.price === 'number' ? (
-                        <div className="text-2xl font-bold">${course.price.toFixed(2)}</div>
-                      ) : (
-                        <div className="text-2xl font-bold">Free</div>
-                      )}
-                      
-                      <div className="flex items-center gap-2">
-                        <Button size="icon" variant="outline">
-                          <Share2 className="h-4 w-4" />
-                        </Button>
-                        <Button size="icon" variant="outline">
-                          <Heart className={cn("h-4 w-4", course.isFavorite && "fill-red-500 text-red-500")} />
-                        </Button>
-                      </div>
-                    </div>
-                    
-                    {course.progress > 0 ? (
-                      <Button className="w-full mb-4">Continue Learning</Button>
-                    ) : (
-                      <Button className="w-full mb-4" onClick={handleEnrollClick}>
-                        {typeof course.price === 'number' && course.price > 0 ? 'Buy Now' : 'Enroll Now (Free)'}
-                      </Button>
-                    )}
-                    
-                    <div className="space-y-4">
-                      <div className="text-sm">
-                        <h4 className="font-medium mb-2">This course includes:</h4>
-                        <ul className="space-y-2">
-                          <CourseFeature icon={Play}>
-                            {course.duration} of on-demand video
-                          </CourseFeature>
-                          <CourseFeature icon={FileText}>
-                            85 downloadable resources
-                          </CourseFeature>
-                          <CourseFeature icon={MessageSquare}>
-                            Direct access to instructor Q&A
-                          </CourseFeature>
-                          <CourseFeature icon={CheckCircle}>
-                            Certificate of completion
-                          </CourseFeature>
-                        </ul>
-                      </div>
-                      
-                      <div>
-                        <h4 className="font-medium mb-2 text-sm">Last updated</h4>
-                        <p className="text-sm text-muted-foreground">{course.lastUpdated}</p>
-                      </div>
-                      
-                      <div>
-                        <h4 className="font-medium mb-2 text-sm">Skill level</h4>
-                        <p className="text-sm text-muted-foreground">{course.level}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="mt-6">
-                      <Button variant="outline" className="w-full">Gift This Course</Button>
-                    </div>
-                    
-                    <div className="text-xs text-center text-muted-foreground mt-4">
-                      30-Day Money-Back Guarantee
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
-    </div>
-  );
-};
-
-function FeatureItem({ children, icon: Icon }: { children: React.ReactNode; icon?: LucideIcon }) {
-  return (
-    <li className="flex items-start">
-      {Icon && <Icon className="h-4 w-4 text-primary mr-2 mt-0.5 flex-shrink-0" />}
-      <span>{children}</span>
-    </li>
-  );
-}
-
-function CourseFeature({ children, icon: Icon }: { children: React.ReactNode; icon?: LucideIcon }) {
-  return (
-    <li className="flex items-center">
-      {Icon && <Icon className="h-4 w-4 text-muted-foreground mr-2 flex-shrink-0" />}
-      <span>{children}</span>
-    </li>
-  );
-}
-
-export default CoursePage;
+                                      <span className
