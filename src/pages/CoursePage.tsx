@@ -9,6 +9,8 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 import {
   BookOpen,
   Clock,
@@ -28,6 +30,8 @@ import {
   LucideIcon,
   Settings,
   Plus,
+  Search,
+  Heart,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useTheme } from '@/hooks/use-theme';
