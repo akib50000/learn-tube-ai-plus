@@ -7,9 +7,10 @@ import AITutorSelector from './AITutorSelector';
 interface AITutorTabProps {
   courseTitle?: string;
   courseSubject?: string;
+  courseId?: string;
 }
 
-const AITutorTab: React.FC<AITutorTabProps> = ({ courseTitle, courseSubject }) => {
+const AITutorTab: React.FC<AITutorTabProps> = ({ courseTitle, courseSubject, courseId }) => {
   return (
     <div className="space-y-6">
       <Card>
