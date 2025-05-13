@@ -418,8 +418,6 @@ const CoursePage = () => {
             }
           ];
           
-          setReviews(mockReviews);
-          
           const mockQuestions = [
             {
               id: "question-1",
@@ -465,6 +463,7 @@ const CoursePage = () => {
             }
           ];
           
+          setReviews(mockReviews);
           setQuestions(mockQuestions);
         }
         
@@ -870,4 +869,4 @@ const CoursePage = () => {
                         <CardContent className="p-6">
                           <h2 className="text-lg font-medium mb-4">Practice Exercises</h2>
                           <p className="mb-6">
-                            Reinforce what you've learned
+                            Reinforce what you've learned with these
