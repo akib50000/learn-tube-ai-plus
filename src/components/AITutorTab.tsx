@@ -1,46 +1,60 @@
 
-import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import AITutorSelector from './AITutorSelector';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Send } from 'lucide-react';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import AiChatInterface from './AiChatInterface';
 
 interface AITutorTabProps {
-  courseTitle?: string;
-  courseSubject?: string;
-  courseId?: string;
+  chatMessage: string;
+  setChatMessage: (message: string) => void;
+  handleSendMessage: (e: React.FormEvent) => void;
 }
 
-const AITutorTab: React.FC<AITutorTabProps> = ({ courseTitle, courseSubject, courseId }) => {
+const AITutorTab = ({ 
+  chatMessage, 
+  setChatMessage, 
+  handleSendMessage 
+}: AITutorTabProps) => {
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>AI Learning Assistant</CardTitle>
-          <CardDescription>
-            Get personalized help with your coursework and questions
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="tutors">
-            <TabsList className="mb-4">
-              <TabsTrigger value="tutors">AI Tutors</TabsTrigger>
-              <TabsTrigger value="previous">Previous Conversations</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="tutors">
-              <AITutorSelector courseTitle={courseTitle} courseSubject={courseSubject} />
-            </TabsContent>
-            
-            <TabsContent value="previous">
-              <div className="text-center py-8 text-muted-foreground">
-                <p>No previous conversations found</p>
-                <p className="text-sm mt-1">Start a new conversation with an AI tutor to get help with your coursework</p>
-              </div>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
-    </div>
+    <Card className="h-[600px] flex flex-col">
+      <CardContent className="p-6 flex-1 overflow-hidden">
+        <div className="flex flex-col h-full">
+          <div className="mb-4 flex items-center gap-2">
+            <Avatar className="h-8 w-8">
+              <AvatarImage src="/ai-assistant.png" />
+              <AvatarFallback>AI</AvatarFallback>
+            </Avatar>
+            <div>
+              <h3 className="font-medium text-sm">Course AI Tutor</h3>
+              <p className="text-xs text-muted-foreground">Ask questions about this course</p>
+            </div>
+          </div>
+          
+          <ScrollArea className="flex-1 pr-4">
+            <div className="space-y-4">
+              <AiChatInterface />
+            </div>
+          </ScrollArea>
+        </div>
+      </CardContent>
+      
+      <CardFooter className="p-4 pt-2 border-t">
+        <form className="flex w-full gap-2" onSubmit={handleSendMessage}>
+          <Input 
+            placeholder="Ask a question about this lesson..." 
+            value={chatMessage}
+            onChange={(e) => setChatMessage(e.target.value)}
+            className="flex-1"
+          />
+          <Button type="submit" size="icon">
+            <Send className="h-4 w-4" />
+          </Button>
+        </form>
+      </CardFooter>
+    </Card>
   );
 };
 

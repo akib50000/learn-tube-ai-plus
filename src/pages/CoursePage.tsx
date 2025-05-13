@@ -1,53 +1,15 @@
-import { useState, useEffect, Dispatch, SetStateAction, FormEvent, Element } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Progress } from '@/components/ui/progress';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { cn } from '@/lib/utils';
-import {
-  BookOpen,
-  Clock,
-  Download,
-  FileText,
-  Globe,
-  MessageSquare,
-  Play,
-  Share2,
-  Star,
-  ThumbsUp,
-  User,
-  CheckCircle,
-  ChevronDown,
-  ChevronUp,
-  List,
-  Settings,
-  Plus,
-  Search,
-  Heart,
-  Bookmark,
-  FileCode,
-  MessageCircle,
-  Save
-} from 'lucide-react';
+import VideoPlayer from '@/components/VideoPlayer';
 import { useToast } from '@/hooks/use-toast';
 import { useTheme } from '@/hooks/use-theme';
-import { formatNumber } from '@/lib/utils';
-import AITutorTab from '@/components/AITutorTab';
-import FeatureItem from '@/components/CourseFeatureItem';
-import VideoPlayer from '@/components/VideoPlayer';
-import VideoChapters from '@/components/VideoChapters';
-import PracticeExercises from '@/components/PracticeExercises';
-import CodeChallenge from '@/components/CodeChallenge';
-import ProgressTracker from '@/components/ProgressTracker';
+import CourseNavigation from '@/components/course/CourseNavigation';
+import CourseHeader from '@/components/course/CourseHeader';
+import CourseTabs from '@/components/course/CourseTabs';
+import CourseLoadingSkeleton from '@/components/course/CourseLoadingSkeleton';
+import CourseNotFound from '@/components/course/CourseNotFound';
+import ProgressSection from '@/components/course/ProgressSection';
 
 // Interface definitions for Module, Lesson, Review, Question, Answer
 interface Module {
@@ -127,7 +89,7 @@ const CoursePage = () => {
     { id: "chapter-5", title: "Conclusion", timestamp: 840 }
   ];
 
-  // Mock exercises for practice - Fixed the difficulty type to use string literals
+  // Mock exercises for practice
   const exercises = [
     { id: "ex-1", title: "Basic DOM Manipulation", difficulty: "Easy" as "Easy" | "Medium" | "Hard", points: 10 },
     { id: "ex-2", title: "Event Handling Challenge", difficulty: "Medium" as "Easy" | "Medium" | "Hard", points: 25 },
@@ -547,30 +509,7 @@ const CoursePage = () => {
   
   // If course not found, show error page
   if (!isLoading && !course) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
-        <div className="container py-12 px-4 text-center">
-          <div className="mb-6 flex justify-center">
-            <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center">
-              <BookOpen className="h-10 w-10 text-muted-foreground" />
-            </div>
-          </div>
-          <h1 className="text-4xl font-bold mb-4">Course Not Found</h1>
-          <p className="text-muted-foreground mb-8 max-w-lg mx-auto">
-            The course you're looking for doesn't exist or may have been removed.
-          </p>
-          <div className="flex justify-center gap-4">
-            <Button asChild>
-              <Link to="/explore">Browse Courses</Link>
-            </Button>
-            <Button asChild variant="outline">
-              <Link to="/">Return to Home</Link>
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
+    return <CourseNotFound />;
   }
 
   return (
@@ -578,201 +517,21 @@ const CoursePage = () => {
       <Navbar />
       
       {isLoading ? (
-        <div className="container py-8 px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2">
-              <Skeleton className="w-full aspect-video rounded-lg mb-6" />
-              <Skeleton className="h-10 w-3/4 mb-3" />
-              <Skeleton className="h-4 w-full mb-2" />
-              <Skeleton className="h-4 w-full mb-2" />
-              <Skeleton className="h-4 w-2/3" />
-            </div>
-            <div>
-              <Skeleton className="w-full h-96 rounded-lg" />
-            </div>
-          </div>
-        </div>
+        <CourseLoadingSkeleton />
       ) : (
         <div className="flex flex-1 overflow-hidden">
           {/* Left Panel - Course Navigation */}
-          <div className="hidden md:flex w-64 border-r flex-shrink-0 flex-col h-[calc(100vh-4rem)]">
-            <div className="p-4 border-b">
-              <h2 className="text-lg font-semibold">Course Content</h2>
-              <p className="text-sm text-muted-foreground mt-1">
-                {modules.length} modules • {modules.reduce((acc, module) => acc + module.lessons.length, 0)} lessons
-              </p>
-            </div>
-            
-            <ScrollArea className="flex-1">
-              {/* Expandable Modules */}
-              <div className="p-2">
-                <h3 className="px-3 py-2 text-sm font-medium">Modules</h3>
-                <div className="space-y-1">
-                  {modules.map((module) => (
-                    <Collapsible 
-                      key={module.id} 
-                      open={module.isExpanded}
-                      className="border rounded-md overflow-hidden mb-2"
-                    >
-                      <CollapsibleTrigger asChild>
-                        <Button 
-                          variant="ghost" 
-                          className="w-full flex justify-between items-center p-3 h-auto"
-                          onClick={() => toggleModuleExpansion(module.id)}
-                        >
-                          <div className="flex items-start">
-                            <div className="mr-2 bg-primary/10 rounded-full w-6 h-6 flex items-center justify-center mt-0.5">
-                              <List className="h-3 w-3 text-primary" />
-                            </div>
-                            <div className="text-left">
-                              <p className="font-medium text-sm">{module.title}</p>
-                              <p className="text-xs text-muted-foreground">
-                                {module.lessons.length} lessons • {module.duration}
-                              </p>
-                            </div>
-                          </div>
-                          {module.isExpanded ? (
-                            <ChevronUp className="h-4 w-4 shrink-0 text-muted-foreground" />
-                          ) : (
-                            <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
-                          )}
-                        </Button>
-                      </CollapsibleTrigger>
-                      <CollapsibleContent className="border-t">
-                        {module.lessons.map((lesson) => (
-                          <Button 
-                            key={lesson.id}
-                            variant="ghost"
-                            className={cn(
-                              "w-full justify-start pl-11 pr-2 py-2 h-auto text-left",
-                              currentLessonId === lesson.id && "bg-muted",
-                              lesson.isLocked && "opacity-60"
-                            )}
-                            onClick={() => !lesson.isLocked && handleSelectLesson(lesson.id)}
-                            disabled={lesson.isLocked}
-                          >
-                            <div className="flex items-center justify-between w-full gap-1">
-                              <div className="flex items-center gap-2">
-                                {lesson.isCompleted ? (
-                                  <CheckCircle className="h-3 w-3 text-green-500" />
-                                ) : lesson.isLocked ? (
-                                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3 w-3 text-muted-foreground">
-                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                                  </svg>
-                                ) : (
-                                  <Play className="h-3 w-3 text-primary" />
-                                )}
-                                <span className="text-xs font-medium truncate">{lesson.title}</span>
-                              </div>
-                              <div className="flex items-center gap-1.5">
-                                <span className="text-[10px] text-muted-foreground">{lesson.duration}</span>
-                                <Button 
-                                  variant="ghost" 
-                                  size="icon" 
-                                  className="h-5 w-5 p-0"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    toggleBookmark(lesson.id);
-                                  }}
-                                >
-                                  <Bookmark 
-                                    className={cn(
-                                      "h-3 w-3",
-                                      bookmarkedLessons.includes(lesson.id) 
-                                        ? "fill-yellow-400 text-yellow-400" 
-                                        : "text-muted-foreground"
-                                    )} 
-                                  />
-                                </Button>
-                              </div>
-                            </div>
-                          </Button>
-                        ))}
-                      </CollapsibleContent>
-                    </Collapsible>
-                  ))}
-                </div>
-              </div>
-              
-              {/* Lesson Progression Tracker */}
-              <div className="p-4 border-t">
-                <h3 className="mb-2 text-sm font-medium">Your Progress</h3>
-                <Progress 
-                  value={course.progress} 
-                  className="h-2 mb-1" 
-                />
-                <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>{course.progress}% complete</span>
-                  <span>12/36 lessons</span>
-                </div>
-              </div>
-              
-              {/* Bookmarked Sections */}
-              <div className="p-4 border-t">
-                <h3 className="mb-2 text-sm font-medium">Bookmarked Lessons</h3>
-                {bookmarkedLessons.length > 0 ? (
-                  <div className="space-y-2">
-                    {bookmarkedLessons.map(bookmarkId => {
-                      const lesson = modules
-                        .flatMap(module => module.lessons)
-                        .find(lesson => lesson.id === bookmarkId);
-                      
-                      return lesson ? (
-                        <Button 
-                          key={bookmarkId}
-                          variant="ghost"
-                          size="sm"
-                          className="w-full justify-start h-auto py-1 text-left"
-                          onClick={() => handleSelectLesson(bookmarkId)}
-                        >
-                          <div className="flex items-center gap-2">
-                            <Bookmark className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                            <span className="text-xs truncate">{lesson.title}</span>
-                          </div>
-                        </Button>
-                      ) : null;
-                    })}
-                  </div>
-                ) : (
-                  <p className="text-xs text-muted-foreground">No bookmarks yet</p>
-                )}
-              </div>
-              
-              {/* Resources and Downloads */}
-              <div className="p-4 border-t">
-                <h3 className="mb-2 text-sm font-medium">Course Resources</h3>
-                <div className="space-y-2">
-                  {course.resources && course.resources.map((resource: any) => (
-                    <Button 
-                      key={resource.id}
-                      variant="outline"
-                      size="sm"
-                      className="w-full justify-start h-auto py-2 text-left"
-                      onClick={handleDownload}
-                    >
-                      <div className="flex justify-between items-center w-full">
-                        <div className="flex items-center gap-2">
-                          {resource.type === 'PDF' ? (
-                            <FileText className="h-3.5 w-3.5 text-red-500" />
-                          ) : resource.type === 'ZIP' ? (
-                            <Download className="h-3.5 w-3.5 text-blue-500" />
-                          ) : (
-                            <Download className="h-3.5 w-3.5" />
-                          )}
-                          <div>
-                            <p className="text-xs font-medium">{resource.title}</p>
-                            <p className="text-[10px] text-muted-foreground">{resource.size}</p>
-                          </div>
-                        </div>
-                        <Download className="h-3 w-3 text-muted-foreground" />
-                      </div>
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            </ScrollArea>
-          </div>
+          <CourseNavigation
+            modules={modules}
+            currentLessonId={currentLessonId}
+            bookmarkedLessons={bookmarkedLessons}
+            courseProgress={course.progress}
+            resources={course.resources}
+            toggleModuleExpansion={toggleModuleExpansion}
+            handleSelectLesson={handleSelectLesson}
+            toggleBookmark={toggleBookmark}
+            handleDownload={handleDownload}
+          />
           
           {/* Center Panel - Course Content */}
           <div className="flex-1 overflow-auto">
@@ -790,77 +549,33 @@ const CoursePage = () => {
               <div className="flex flex-col md:flex-row gap-6">
                 {/* Main Content Area */}
                 <div className="flex-1">
-                  <div>
-                    <h1 className="text-2xl font-bold mb-2">
-                      {modules[0]?.lessons[0]?.title || "Introduction to the Course"}
-                    </h1>
-                    <div className="flex items-center gap-x-4 text-sm mb-6">
-                      <div className="flex items-center">
-                        <Clock className="h-4 w-4 mr-1 text-muted-foreground" />
-                        <span>15:30</span>
-                      </div>
-                      <div className="flex items-center">
-                        <Play className="h-4 w-4 mr-1 text-muted-foreground" />
-                        <span>Lesson 1.1</span>
-                      </div>
-                      <Button 
-                        variant="ghost"
-                        size="sm"
-                        className="flex items-center gap-1"
-                        onClick={() => toggleBookmark("lesson-1-1")}
-                      >
-                        <Bookmark 
-                          className={cn(
-                            "h-4 w-4", 
-                            bookmarkedLessons.includes("lesson-1-1") 
-                              ? "fill-yellow-400 text-yellow-400" 
-                              : "text-muted-foreground"
-                          )} 
-                        />
-                        <span>Bookmark</span>
-                      </Button>
-                    </div>
-                  </div>
+                  <CourseHeader 
+                    title={modules[0]?.lessons[0]?.title || "Introduction to the Course"}
+                    bookmarkedLessons={bookmarkedLessons}
+                    toggleBookmark={toggleBookmark}
+                  />
 
-                  <Tabs defaultValue="content" className="mb-8">
-                    <TabsList className="mb-4">
-                      <TabsTrigger value="content">Content</TabsTrigger>
-                      <TabsTrigger value="exercises">Exercises</TabsTrigger>
-                      <TabsTrigger value="challenges">Coding Challenges</TabsTrigger>
-                      <TabsTrigger value="notes">Notes</TabsTrigger>
-                      <TabsTrigger value="ai-tutor">AI Tutor</TabsTrigger>
-                    </TabsList>
+                  <CourseTabs 
+                    videoChapters={videoChapters}
+                    exercises={exercises}
+                    codingChallenges={codingChallenges}
+                    chatMessage={chatMessage}
+                    setChatMessage={setChatMessage}
+                    handleSendMessage={handleSendMessage}
+                  />
+                </div>
+                
+                {/* Right Sidebar */}
+                <div className="w-full md:w-80 flex-shrink-0">
+                  <ProgressSection progressData={progressData} />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
-                    <TabsContent value="content">
-                      <Card className="mb-6">
-                        <CardContent className="p-6">
-                          <h2 className="text-lg font-medium mb-4">Lesson Content</h2>
-                          <p className="mb-4">
-                            Welcome to the first lesson of our Web Development Course. In this introduction, we'll cover the basic setup and tools you'll need throughout the course.
-                          </p>
-                          <p className="mb-4">
-                            Web development is a dynamic field that combines creativity and technical skills to create engaging online experiences. We'll start with the fundamentals of HTML, CSS, and JavaScript before diving into more advanced frameworks like React.
-                          </p>
-                          <p>
-                            By the end of this course, you'll have built multiple projects and gained the skills needed to develop modern web applications from scratch.
-                          </p>
-                        </CardContent>
-                      </Card>
-
-                      <div className="mb-6">
-                        <h3 className="text-lg font-medium mb-4">Video Chapters</h3>
-                        <VideoChapters chapters={videoChapters} />
-                      </div>
-
-                      <Card>
-                        <CardContent className="p-6">
-                          <h3 className="text-lg font-medium mb-4">Key Takeaways</h3>
-                          <ul className="space-y-2">
-                            <FeatureItem icon={CheckCircle}>Understanding of the web development ecosystem</FeatureItem>
-                            <FeatureItem icon={CheckCircle}>Knowledge of essential development tools</FeatureItem>
-                            <FeatureItem icon={CheckCircle}>Basic setup for your development environment</FeatureItem>
-                            <FeatureItem icon={CheckCircle}>Overview of the course structure and projects</FeatureItem>
-                          </ul>
-                        </CardContent>
-                      </Card>
-                    </
+export default CoursePage;
