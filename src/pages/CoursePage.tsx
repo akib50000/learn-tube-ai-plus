@@ -35,19 +35,9 @@ import { useToast } from '@/hooks/use-toast';
 import { useTheme } from '@/hooks/use-theme';
 import { formatNumber, formatDuration } from '@/lib/utils';
 import AITutorTab from '@/components/AITutorTab';
+import FeatureItem from '@/components/CourseFeatureItem';
 
-// Feature Item component
-const FeatureItem = ({ icon: Icon, children }: { icon?: React.ComponentType<any>; children: React.ReactNode }) => (
-  <li className="flex items-start">
-    {Icon && (
-      <div className="mr-2 h-5 w-5 text-green-500">
-        <Icon className="h-5 w-5" />
-      </div>
-    )}
-    <span>{children}</span>
-  </li>
-);
-
+// Interface definitions for Module, Lesson, Review, Question, Answer
 interface Module {
   id: string;
   title: string;
@@ -453,7 +443,7 @@ const CoursePage = () => {
     });
   };
   
-  // If course not found, redirect to error page
+  // If course not found, show error page
   if (!isLoading && !course) {
     return (
       <div className="min-h-screen bg-background">
@@ -844,4 +834,9 @@ const CoursePage = () => {
                             {reviews.map(review => (
                               <div key={review.id} className="border-b pb-6 last:border-b-0">
                                 <div className="flex items-start">
-                                  <Avatar className="h-10 w
+                                  <Avatar className="h-10 w-10 mr-3">
+                                    <AvatarImage src={review.user.avatar} alt={review.user.name} />
+                                    <AvatarFallback>{review.user.name.charAt(0)}</AvatarFallback>
+                                  </Avatar>
+                                  <div className="flex-1">
+                                    <div className="flex items-center justify-between">
