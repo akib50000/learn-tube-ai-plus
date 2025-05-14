@@ -14,7 +14,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 0 72.2% 50.6%;
+    --primary: 0 83% 53%;
     --primary-foreground: 0 85.7% 97.3%;
 
     --secondary: 210 40% 96.1%;
@@ -33,7 +33,7 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
 
-    --radius: 0.5rem;
+    --radius: 1rem;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -91,7 +91,7 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
   }
   
   /* Airbnb-style typography */
@@ -115,11 +115,11 @@
   }
   
   .nav-item {
-    @apply px-3 py-2 rounded-lg hover:bg-learntube-hover-gray dark:hover:bg-learntube-gray/20 transition-colors;
+    @apply px-3 py-2 rounded-full hover:bg-learntube-hover-gray dark:hover:bg-learntube-gray/20 transition-colors;
   }
   
   .sidebar-item {
-    @apply flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-learntube-hover-gray dark:hover:bg-learntube-gray/20 transition-colors cursor-pointer;
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-learntube-hover-gray dark:hover:bg-learntube-gray/20 transition-colors cursor-pointer;
   }
 
   .progress-bar {
@@ -148,7 +148,7 @@
   }
   
   .airbnb-btn {
-    @apply px-6 py-3 font-medium rounded-lg transition-colors;
+    @apply px-6 py-3 font-medium rounded-full transition-colors;
   }
   
   .airbnb-btn-primary {
@@ -160,7 +160,7 @@
   }
   
   .airbnb-section {
-    @apply py-12 px-4 sm:px-6 lg:px-8;
+    @apply py-20 px-4 sm:px-6 lg:px-8;
   }
   
   .airbnb-grid {

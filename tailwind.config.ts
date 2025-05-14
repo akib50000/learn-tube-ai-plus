@@ -19,6 +19,9 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				sans: ['Circular', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -64,19 +67,19 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
 				learntube: {
-					red: '#FF0000',
-					'dark-red': '#CC0000',
-					gray: '#606060',
-					'light-gray': '#F8F8F8',
-					'dark-gray': '#181818',
+					red: '#FF5A5F',
+					'dark-red': '#D93B42',
+					gray: '#717171',
+					'light-gray': '#F7F7F7',
+					'dark-gray': '#222222',
 					'darker-gray': '#0F0F0F',
-					'hover-gray': '#E5E5E5',
+					'hover-gray': '#EBEBEB',
 				}
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
-				md: 'calc(var(--radius) - 2px)',
-				sm: 'calc(var(--radius) - 4px)'
+				md: 'calc(var(--radius) - 0.25rem)',
+				sm: 'calc(var(--radius) - 0.5rem)'
 			},
 			keyframes: {
 				'accordion-down': {
@@ -121,6 +124,9 @@ export default {
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'fade-in': 'fade-in 0.3s ease-out',
 				'fade-out': 'fade-out 0.3s ease-out',
+			},
+			boxShadow: {
+				'airbnb': '0px 6px 16px rgba(0, 0, 0, 0.12)',
 			}
 		}
 	},
