@@ -1,442 +1,254 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { 
-  Search, ArrowRight, Trophy, Star, Clock, 
-  CheckCircle, Bookmark, Heart
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
-import FeaturedCourse from '@/components/FeaturedCourse';
-import Navbar from '@/components/Navbar';
-import Sidebar from '@/components/Sidebar';
-import { useToast } from '@/hooks/use-toast';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Heart, Star, MapPin } from 'lucide-react';
 
-// Mock data for featured courses
-const featuredCoursesData = [
-  {
-    id: "course-1",
-    title: "Complete Web Development Bootcamp",
-    description: "Learn HTML, CSS, JavaScript, React, Node.js, MongoDB and more with hands-on projects.",
-    thumbnail: "https://images.unsplash.com/photo-1546900703-cf06143d1239?q=80&w=2050&auto=format&fit=crop",
-    instructor: "Sarah Johnson",
-    instructorId: "instructor-1",
-    duration: "42 hours",
-    likes: 4253,
-    tags: ["Web Development", "React", "JavaScript"],
-    rating: 4.9,
-    students: 25481,
-    price: "Free"
-  },
-  {
-    id: "course-2",
-    title: "UI/UX Design Masterclass",
-    description: "Learn to design beautiful interfaces that users will love. Master Figma, design principles and user research.",
-    thumbnail: "https://images.unsplash.com/photo-1551650975-87deedd944c3?q=80&w=1974&auto=format&fit=crop",
-    instructor: "Michael Chen",
-    instructorId: "instructor-2",
-    duration: "28 hours",
-    likes: 3876,
-    tags: ["Design", "UI/UX", "Figma"],
-    rating: 4.8,
-    students: 18924,
-    price: "49.99"
-  },
-  {
-    id: "course-3",
-    title: "Data Science and Machine Learning",
-    description: "Dive into the world of data science with Python, pandas, scikit-learn, and TensorFlow.",
-    thumbnail: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop",
-    instructor: "Dr. Alicia Rivera",
-    instructorId: "instructor-3",
-    duration: "36 hours",
-    likes: 5124,
-    tags: ["Data Science", "Python", "Machine Learning"],
-    rating: 4.7,
-    students: 32145,
-    price: "59.99"
-  }
+// Featured course data
+const featuredCourse = {
+  id: 'course-featured',
+  title: 'Master Modern Web Development',
+  instructor: 'Alex Johnson',
+  rating: 4.9,
+  reviews: 342,
+  image: 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NXx8Y29kaW5nfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=800&q=60',
+  description: 'A comprehensive journey from beginner to professional web developer. Learn React, Node.js, and modern JavaScript practices.',
+  price: 89.99,
+};
+
+// Category data
+const categories = [
+  { id: 'cat-1', name: 'Web Development', icon: '🌐', courses: 123, image: 'https://images.unsplash.com/photo-1555099962-4199c345e5dd?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8d2ViJTIwZGV2ZWxvcG1lbnR8ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60' },
+  { id: 'cat-2', name: 'Mobile Development', icon: '📱', courses: 87, image: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8bW9iaWxlJTIwZGV2ZWxvcG1lbnR8ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60' },
+  { id: 'cat-3', name: 'Data Science', icon: '📊', courses: 95, image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8M3x8ZGF0YSUyMHNjaWVuY2V8ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60' },
+  { id: 'cat-4', name: 'Design', icon: '🎨', courses: 67, image: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8ZGVzaWdufGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500&q=60' },
 ];
 
-// Mock data for popular categories
-const popularCategories = [
+// Trending courses data
+const trendingCourses = [
   {
-    id: "cat-1",
-    name: "Development",
-    icon: "💻",
-    courses: 482,
-    color: "bg-blue-50 dark:bg-blue-900/20"
-  },
-  {
-    id: "cat-2",
-    name: "Design",
-    icon: "🎨",
-    courses: 341,
-    color: "bg-purple-50 dark:bg-purple-900/20"
-  },
-  {
-    id: "cat-3",
-    name: "Business",
-    icon: "📊",
-    courses: 264,
-    color: "bg-amber-50 dark:bg-amber-900/20"
-  },
-  {
-    id: "cat-4",
-    name: "Marketing",
-    icon: "📱",
-    courses: 157,
-    color: "bg-green-50 dark:bg-green-900/20"
-  },
-  {
-    id: "cat-5",
-    name: "Photography",
-    icon: "📷",
-    courses: 112,
-    color: "bg-red-50 dark:bg-red-900/20"
-  },
-  {
-    id: "cat-6",
-    name: "Music",
-    icon: "🎵",
-    courses: 98,
-    color: "bg-indigo-50 dark:bg-indigo-900/20"
-  }
-];
-
-// Mock data for trending courses
-const trendingCoursesData = [
-  {
-    id: "trending-1",
-    title: "Introduction to Artificial Intelligence",
-    thumbnail: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=2070&auto=format&fit=crop",
-    instructor: "Prof. James Wilson",
+    id: 'course-1',
+    title: 'React Fundamentals',
+    instructor: 'Sarah Davis',
     rating: 4.8,
-    students: 14253,
-    price: "49.99",
-    tags: ["AI", "Python", "Machine Learning"]
+    reviews: 218,
+    image: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8M3x8cmVhY3R8ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60',
+    price: 49.99,
+    location: 'Online',
   },
   {
-    id: "trending-2",
-    title: "Advanced JavaScript: Modern ES6+ Features",
-    thumbnail: "https://images.unsplash.com/photo-1555099962-4199c345e5dd?q=80&w=2070&auto=format&fit=crop",
-    instructor: "Emma Rodriguez",
-    rating: 4.9,
-    students: 8764,
-    price: "Free",
-    tags: ["JavaScript", "Web Development", "ES6"]
-  },
-  {
-    id: "trending-3",
-    title: "Financial Analysis and Modeling",
-    thumbnail: "https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?q=80&w=1974&auto=format&fit=crop",
-    instructor: "Robert Chang, MBA",
+    id: 'course-2',
+    title: 'Python for Data Science',
+    instructor: 'Michael Chen',
     rating: 4.7,
-    students: 6129,
-    price: "69.99",
-    tags: ["Finance", "Excel", "Business"]
+    reviews: 195,
+    image: 'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8cHl0aG9ufGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500&q=60',
+    price: 59.99,
+    location: 'Online',
   },
   {
-    id: "trending-4",
-    title: "Digital Marketing Fundamentals",
-    thumbnail: "https://images.unsplash.com/photo-1557838923-2985c318be48?q=80&w=2031&auto=format&fit=crop",
-    instructor: "Lisa Montgomery",
-    rating: 4.8,
-    students: 9452,
-    price: "39.99",
-    tags: ["Marketing", "Social Media", "SEO"]
-  }
+    id: 'course-3',
+    title: 'UX Design Principles',
+    instructor: 'Emma Wilson',
+    rating: 4.9,
+    reviews: 167,
+    image: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8ZGVzaWdufGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500&q=60',
+    price: 69.99,
+    location: 'Online',
+  },
+  {
+    id: 'course-4',
+    title: 'iOS App Development',
+    instructor: 'David Thompson',
+    rating: 4.6,
+    reviews: 142,
+    image: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8bW9iaWxlJTIwZGV2ZWxvcG1lbnR8ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60',
+    price: 79.99,
+    location: 'Online',
+  },
 ];
 
 const HomePage = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const { toast } = useToast();
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      toast({
-        title: "Searching...",
-        description: `Looking for "${searchQuery}"`,
-      });
-      // In a real app, this would navigate or filter results
-    }
-  };
-
+  // Loading states
+  const [isLoading, setIsLoading] = useState(false);
+  
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
-      <div className="flex">
-        <Sidebar />
-        <main className="flex-1 md:ml-64">
-          {/* Hero Section */}
-          <section className="relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/90 to-primary/70 z-10" />
-            <div className="absolute inset-0">
-              <img 
-                src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2071&auto=format&fit=crop" 
-                alt="Students learning" 
-                className="w-full h-full object-cover"
-              />
+      {/* Hero Section */}
+      <section className="relative h-[500px] bg-gradient-to-r from-learntube-darker-gray to-learntube-dark-gray overflow-hidden">
+        <div className="absolute inset-0 opacity-30">
+          <img 
+            src="https://images.unsplash.com/photo-1593720213428-28a5b9e94613?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8d2ViJTIwZGV2ZWxvcG1lbnR8ZW58MHx8MHx8&auto=format&fit=crop&w=1200&q=80"
+            alt="Background" 
+            className="w-full h-full object-cover"
+          />
+        </div>
+        
+        <div className="container relative z-10 h-full flex flex-col items-center justify-center text-white text-center px-4">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 animate-fade-in">
+            Learn with LearnTube
+          </h1>
+          <p className="text-lg md:text-xl max-w-2xl mb-8 animate-fade-in">
+            Discover thousands of courses taught by expert instructors to help you master new skills
+          </p>
+          <div className="flex flex-wrap gap-4 justify-center animate-fade-in">
+            <Button className="airbnb-btn-primary text-base">
+              Explore Courses
+            </Button>
+            <Button variant="outline" className="text-base border-white text-white hover:bg-white/20">
+              Start Teaching
+            </Button>
+          </div>
+        </div>
+      </section>
+      
+      {/* Featured Course Section */}
+      <section className="airbnb-section">
+        <div className="container">
+          <h2 className="text-3xl font-bold mb-6">Featured Course</h2>
+          
+          {isLoading ? (
+            <div className="relative rounded-xl overflow-hidden">
+              <Skeleton className="w-full h-[400px]" />
             </div>
-            <div className="relative z-20 container py-20 px-4 max-w-5xl mx-auto text-white">
-              <div className="max-w-2xl">
-                <h1 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">
-                  Discover Your Learning Potential
-                </h1>
-                <p className="text-lg md:text-xl mb-8 opacity-90">
-                  Join over 100,000 learners mastering new skills with our expert-led courses.
-                  Start your learning journey today!
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <div className="relative flex-1">
-                    <form onSubmit={handleSearch} className="relative">
-                      <Input
-                        type="search"
-                        placeholder="What do you want to learn today?"
-                        className="pl-12 h-12 w-full bg-white text-black rounded-full shadow"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                      />
-                      <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 h-5 w-5" />
-                      <Button 
-                        type="submit" 
-                        className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full h-10"
-                      >
-                        Search
-                      </Button>
-                    </form>
-                  </div>
-                  <Button asChild size="lg" variant="secondary" className="h-12 px-6 rounded-full">
-                    <Link to="/explore">
-                      Browse All Courses <ArrowRight className="ml-2 h-4 w-4" />
-                    </Link>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 airbnb-card p-0 overflow-hidden hover:shadow-airbnb transition-shadow duration-300">
+              <div className="relative aspect-[16/9] lg:aspect-auto">
+                <img 
+                  src={featuredCourse.image} 
+                  alt={featuredCourse.title}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute top-4 right-4">
+                  <Button variant="ghost" size="icon" className="rounded-full bg-white/90 hover:bg-white text-learntube-red">
+                    <Heart className="h-5 w-5" />
                   </Button>
                 </div>
               </div>
-            </div>
-          </section>
-          
-          {/* Featured Courses Section */}
-          <section className="py-16 px-4">
-            <div className="container max-w-6xl mx-auto">
-              <div className="flex flex-wrap items-center justify-between mb-10">
-                <div>
-                  <h2 className="text-3xl font-semibold mb-2">Featured Courses</h2>
-                  <p className="text-muted-foreground">
-                    Handpicked courses by our expert team to jumpstart your learning journey
-                  </p>
-                </div>
-                <Button asChild variant="outline" className="rounded-full mt-2 md:mt-0">
-                  <Link to="/explore">
-                    View All Courses <ArrowRight className="ml-1.5 h-4 w-4" />
-                  </Link>
-                </Button>
-              </div>
               
-              <div className="space-y-6">
-                {featuredCoursesData.map((course) => (
-                  <FeaturedCourse key={course.id} {...course} />
-                ))}
-              </div>
-            </div>
-          </section>
-          
-          {/* Categories Section */}
-          <section className="py-16 px-4 bg-slate-50 dark:bg-slate-900/30">
-            <div className="container max-w-6xl mx-auto">
-              <div className="flex flex-wrap items-center justify-between mb-10">
-                <div>
-                  <h2 className="text-3xl font-semibold mb-2">Popular Categories</h2>
-                  <p className="text-muted-foreground">
-                    Browse our most sought-after learning categories
-                  </p>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-                {popularCategories.map((category) => (
-                  <Link 
-                    to={`/explore?category=${category.name.toLowerCase()}`} 
-                    key={category.id}
-                    className="block group"
-                  >
-                    <div className={`${category.color} p-6 rounded-2xl flex flex-col items-center text-center transition-all duration-200 hover:shadow-lg h-full`}>
-                      <div className="text-4xl mb-3">{category.icon}</div>
-                      <h3 className="font-medium mb-1">{category.name}</h3>
-                      <p className="text-sm text-muted-foreground">{category.courses} courses</p>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          </section>
-          
-          {/* Trending Courses Section */}
-          <section className="py-16 px-4">
-            <div className="container max-w-6xl mx-auto">
-              <div className="flex flex-wrap items-center justify-between mb-10">
-                <div>
-                  <h2 className="text-3xl font-semibold mb-2">Trending This Week</h2>
-                  <p className="text-muted-foreground">
-                    Popular courses that students are loving right now
-                  </p>
-                </div>
-                <Button asChild variant="outline" className="rounded-full mt-2 md:mt-0">
-                  <Link to="/explore?sort=trending">
-                    See More <ArrowRight className="ml-1.5 h-4 w-4" />
-                  </Link>
-                </Button>
-              </div>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {trendingCoursesData.map((course) => (
-                  <Link to={`/course/${course.id}`} key={course.id} className="group">
-                    <Card className="overflow-hidden border-none shadow-md h-full transition-all duration-200 hover:shadow-xl">
-                      <div className="relative">
-                        <AspectRatio ratio={16/9}>
-                          <img 
-                            src={course.thumbnail} 
-                            alt={course.title} 
-                            className="object-cover w-full h-full rounded-t-lg" 
-                          />
-                        </AspectRatio>
-                        <div className="absolute top-3 right-3 flex gap-2">
-                          {course.price === 'Free' ? (
-                            <Badge variant="success" className="bg-green-500 text-white">Free</Badge>
-                          ) : (
-                            <Badge variant="secondary" className="bg-white text-black">${course.price}</Badge>
-                          )}
-                        </div>
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                        <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          <Button size="sm" variant="secondary" className="gap-1 bg-white/90 text-black rounded-full">
-                            <Heart className="h-4 w-4" /> Save
-                          </Button>
-                        </div>
-                      </div>
-                      
-                      <CardContent className="p-5">
-                        <div className="flex flex-wrap gap-2 mb-2">
-                          {course.tags.slice(0, 2).map((tag) => (
-                            <Badge key={tag} variant="secondary" className="bg-secondary/50">
-                              {tag}
-                            </Badge>
-                          ))}
-                        </div>
-                        
-                        <h3 className="text-lg font-medium mb-2 line-clamp-2 group-hover:text-primary transition-colors">
-                          {course.title}
-                        </h3>
-                        
-                        <p className="text-sm text-muted-foreground mb-3">
-                          By {course.instructor}
-                        </p>
-                        
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-1">
-                            <div className="flex">
-                              {[1, 2, 3, 4, 5].map((star) => (
-                                <Star 
-                                  key={star}
-                                  className={`h-3.5 w-3.5 ${star <= Math.round(course.rating) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`}
-                                />
-                              ))}
-                            </div>
-                            <span className="text-sm font-medium">{course.rating}</span>
-                          </div>
-                          <span className="text-sm text-muted-foreground">
-                            {new Intl.NumberFormat().format(course.students)} students
-                          </span>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          </section>
-          
-          {/* Benefits Section */}
-          <section className="py-16 px-4 bg-slate-50 dark:bg-slate-900/30">
-            <div className="container max-w-6xl mx-auto">
-              <div className="text-center mb-12">
-                <h2 className="text-3xl font-semibold mb-4">Why Learn With Us</h2>
-                <p className="text-muted-foreground max-w-2xl mx-auto">
-                  We provide a comprehensive learning experience that helps you achieve your goals
-                </p>
-              </div>
-              
-              <div className="grid md:grid-cols-3 gap-8">
-                <div className="bg-background p-6 rounded-2xl shadow-sm">
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                    <Trophy className="h-6 w-6 text-primary" />
+              <div className="p-6 lg:p-8 flex flex-col">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 className="text-2xl font-bold mb-2">{featuredCourse.title}</h3>
+                    <p className="text-muted-foreground mb-1">By {featuredCourse.instructor}</p>
                   </div>
-                  <h3 className="text-xl font-medium mb-2">Expert Instructors</h3>
-                  <p className="text-muted-foreground">
-                    Learn from industry professionals with years of hands-on experience and teaching expertise
-                  </p>
+                  <div className="flex items-center gap-1 text-sm">
+                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                    <span className="font-medium">{featuredCourse.rating}</span>
+                    <span className="text-muted-foreground">({featuredCourse.reviews})</span>
+                  </div>
                 </div>
                 
-                <div className="bg-background p-6 rounded-2xl shadow-sm">
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                    <CheckCircle className="h-6 w-6 text-primary" />
-                  </div>
-                  <h3 className="text-xl font-medium mb-2">Practical Projects</h3>
-                  <p className="text-muted-foreground">
-                    Build real-world projects that enhance your portfolio and demonstrate your skills to employers
-                  </p>
-                </div>
+                <p className="text-muted-foreground mb-6 flex-grow">{featuredCourse.description}</p>
                 
-                <div className="bg-background p-6 rounded-2xl shadow-sm">
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                    <Clock className="h-6 w-6 text-primary" />
-                  </div>
-                  <h3 className="text-xl font-medium mb-2">Flexible Learning</h3>
-                  <p className="text-muted-foreground">
-                    Learn at your own pace with lifetime access to course materials and regular updates
-                  </p>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4 mt-2">
+                  <span className="font-semibold text-xl">${featuredCourse.price}</span>
+                  <Button className="airbnb-btn-primary grow sm:grow-0">Enroll Now</Button>
                 </div>
               </div>
             </div>
-          </section>
+          )}
+        </div>
+      </section>
+      
+      {/* Categories Section */}
+      <section className="airbnb-section bg-gray-50 dark:bg-gray-900">
+        <div className="container">
+          <h2 className="text-3xl font-bold mb-6">Browse Categories</h2>
           
-          {/* CTA Section */}
-          <section className="py-16 px-4">
-            <div className="container max-w-6xl mx-auto">
-              <div className="bg-primary text-white rounded-2xl overflow-hidden shadow-xl">
-                <div className="flex flex-col md:flex-row">
-                  <div className="p-8 md:p-12 flex-1">
-                    <h2 className="text-3xl font-bold mb-4">Ready to Start Learning?</h2>
-                    <p className="text-white/90 mb-6 text-lg">
-                      Join thousands of students already learning on our platform. Get unlimited access to our growing library of courses.
-                    </p>
-                    <div className="flex flex-col sm:flex-row gap-4">
-                      <Button size="lg" variant="secondary" className="rounded-full">
-                        Sign Up For Free
-                      </Button>
-                      <Button size="lg" variant="outline" className="rounded-full bg-transparent border-white text-white hover:bg-white/10">
-                        Browse Courses
-                      </Button>
-                    </div>
-                  </div>
-                  <div className="flex-1 hidden md:block">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {categories.map(category => (
+              <Link key={category.id} to={`/explore?category=${encodeURIComponent(category.name)}`}>
+                <Card className="airbnb-card h-full overflow-hidden hover:shadow-airbnb transition-shadow duration-300">
+                  <div className="relative h-40">
                     <img 
-                      src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=2070&auto=format&fit=crop" 
-                      alt="Students learning" 
+                      src={category.image} 
+                      alt={category.name}
                       className="w-full h-full object-cover"
                     />
+                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-black/60 to-transparent" />
+                    <div className="absolute bottom-4 left-4 text-white">
+                      <div className="text-2xl mb-1">{category.icon}</div>
+                      <h3 className="text-lg font-bold">{category.name}</h3>
+                    </div>
+                  </div>
+                  <CardContent className="p-4">
+                    <p className="text-muted-foreground">{category.courses} courses</p>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+      
+      {/* Trending Courses Section */}
+      <section className="airbnb-section">
+        <div className="container">
+          <div className="flex flex-wrap items-center justify-between mb-6">
+            <h2 className="text-3xl font-bold">Trending Courses</h2>
+            <Link to="/explore" className="text-learntube-red hover:underline font-medium">
+              View all courses
+            </Link>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {trendingCourses.map(course => (
+              <Card key={course.id} className="airbnb-card h-full overflow-hidden hover:shadow-airbnb transition-shadow duration-300">
+                <div className="relative">
+                  <AspectRatio ratio={16/9} className="bg-muted">
+                    <img 
+                      src={course.image} 
+                      alt={course.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </AspectRatio>
+                  <div className="absolute top-3 right-3">
+                    <Button variant="ghost" size="icon" className="rounded-full bg-white/90 hover:bg-white text-learntube-red">
+                      <Heart className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
-              </div>
-            </div>
-          </section>
-        </main>
-      </div>
+                
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-1 text-sm mb-2">
+                    <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                    <span className="font-medium">{course.rating}</span>
+                    <span className="text-muted-foreground">({course.reviews})</span>
+                  </div>
+                  
+                  <h3 className="font-bold mb-1 line-clamp-1">{course.title}</h3>
+                  <p className="text-sm text-muted-foreground mb-2">By {course.instructor}</p>
+                  
+                  <div className="flex items-center gap-1 text-sm text-muted-foreground mb-3">
+                    <MapPin className="h-3 w-3" />
+                    <span>{course.location}</span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center">
+                    <span className="font-semibold">${course.price}</span>
+                    <Button variant="outline" size="sm" className="text-xs">View Course</Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+      
+      {/* Join Community Section */}
+      <section className="airbnb-section bg-learntube-red text-white">
+        <div className="container">
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Join Our Learning Community</h2>
+            <p className="text-lg mb-8">Connect with over 100,000 learners and instructors worldwide. Share knowledge, ask questions, and grow together.</p>
+            <Button className="bg-white text-learntube-red hover:bg-gray-100">Join Now</Button>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };
