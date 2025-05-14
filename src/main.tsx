@@ -2,7 +2,6 @@
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
-import { ThemeProvider } from './hooks/use-theme'
 
 // Add Airbnb's Circular font as system-ui will provide a close approximation
 // In a production app, you would use the actual Circular font with proper licensing
@@ -16,7 +15,5 @@ document.head.innerHTML += `
 `;
 
 createRoot(document.getElementById("root")!).render(
-  <ThemeProvider defaultTheme="light">
-    <App />
-  </ThemeProvider>
+  <App />
 );
